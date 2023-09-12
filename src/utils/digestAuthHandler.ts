@@ -1,7 +1,6 @@
 import axios from "axios";
 import crypto from "crypto";
 require('dotenv').config()
-import fs from 'fs';
 import saveInLogFile from "./saveInLogFile";
 
 
@@ -61,7 +60,10 @@ export const getDataFromDevice = async (): Promise<{} | undefined> => {
     const authHeaderDigest = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", qop=${qop}, nc=${nc}, cnonce="${cnonce}", response="${response}"`;
 
     // Paso 8: Realiza la solicitud real con el encabezado de autenticación digest
-    await axios({
+    
+    
+    try {
+      const { data } = await axios({
       method: httpMethod,
       maxBodyLength: Infinity,
       url: url,
@@ -78,20 +80,29 @@ export const getDataFromDevice = async (): Promise<{} | undefined> => {
           "searchResultPosition": 0,
           "timeReverseOrder": true
         }})
-    }).then( response => {
-        // Manejar la respuesta del servidor aquí
-        saveInLogFile( new Date().toLocaleString() + ' - Consulta a dispositivo Exitosa.' );
-        resp = response.data;
-      })
-      .catch( error => {
-        saveInLogFile( new Date().toLocaleString() + ' - Error en consulta a dispositivo: ' + error );
       });
+      
+      saveInLogFile( new Date().toLocaleString() + ' - Consulta a dispositivo Exitosa.' );
 
-      return resp;
+      return data;
+    } catch (error) {
+      saveInLogFile( new Date().toLocaleString() + ' - Error en consulta a dispositivo: ' + error );
+    }
+    
+    // .then( response => {
+    //     // Manejar la respuesta del servidor aquí
+    //     resp = response.data;
+    //   })
+    //   .catch( error => {
+        
+    //   });
+
+    //   return resp;
   } else {
     saveInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
   }
 }
 
-module.exports = getDataFromDevice;
+export default getDataFromDevice;
+
 

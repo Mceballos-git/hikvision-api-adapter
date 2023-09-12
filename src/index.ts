@@ -7,20 +7,14 @@ createTableIfNotExists();
 
 startServer();
 
+getDataFromDevice().then( response => console.log(response) );
 
-let resp: {} | undefined= {};
 
-async function getData() {
-  try {
-    const data = await getDataFromDevice();
-    resp = data;
-  } catch (error) {
-    console.error('Error al obtener los datos:', error);
-  }
-}
 
-resp = getData();
-console.log(resp);
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3');
 
 
-export const createTableIfNotExists = async () => {
+export const createTableIfNotExists = () => {
 
   const db = new sqlite3.Database('./db/events.db');
 
@@ -33,4 +33,4 @@ export const createTableIfNotExists = async () => {
   });
 }
 
-module.exports = createTableIfNotExists;
+export default createTableIfNotExists;

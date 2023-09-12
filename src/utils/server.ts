@@ -16,7 +16,7 @@ export const startServer = () => {
   });
 }
 
-module.exports = startServer;
+export default startServer;
 
 
 
