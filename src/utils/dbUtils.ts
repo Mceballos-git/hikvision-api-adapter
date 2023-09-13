@@ -1,20 +1,21 @@
 const sqlite3 = require('sqlite3');
 
 
-export const createTableIfNotExists = () => {
+export const initDB = () => {
 
   const db = new sqlite3.Database('./db/events.db');
 
-  const createTableQuery = "CREATE TABLE IF NOT EXISTS events (id INTEGER primary key AUTOINCREMENT," +
-        "apellido varchar(50) NOT NULL DEFAULT ''," +
-        "nombre varchar(50) NOT NULL," +
-        "clave varchar(45) UNIQUE NOT NULL," +
-        "codsuc INTEGER NOT NULL," +
-        "horacre datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,"+
-        "usucrea INTEGER NOT NULL DEFAULT '0'," +
-        "horamod datetime DEFAULT NULL,"+
-        "usumod INTEGER NOT NULL DEFAULT '0'," +
-        "activo char(2) NOT NULL DEFAULT 'Si');"
+  const createTableQuery = "create table IF NOT EXISTS events (id INTEGER primary key AUTOINCREMENT," +
+     "apellido varchar(50) NOT NULL DEFAULT ''," +
+       "nombre varchar(50) NOT NULL," +
+       "clave varchar(45) UNIQUE NOT NULL," +
+       "codsuc INTEGER NOT NULL," +
+       "horacre datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,"+
+       "usucrea INTEGER NOT NULL DEFAULT '0'," +
+       "horamod datetime DEFAULT NULL,"+
+       "usumod INTEGER NOT NULL DEFAULT '0'," +
+       "activo char(2) NOT NULL DEFAULT 'Si');";
+
 
   db.run(createTableQuery, ( err: any ) => {
     if (err) {
@@ -33,4 +34,4 @@ export const createTableIfNotExists = () => {
   });
 }
 
-export default createTableIfNotExists;
+export default initDB;
