@@ -25,3 +25,21 @@ export interface EventData {
   mask: string,
   pictureURL: string
 }
+
+export interface NewEventData {
+  major: number,
+  minor: number,
+  time: string,
+  cardType: number,
+  name: string,
+  cardReaderNo: number,
+  doorNo: number,
+  employeeNoString: string,
+  type: number,
+  serialNo: number,
+  userType: string,
+  currentVerifyMode: string,
+  mask: string,
+  pictureBlob: Blob
+}
+

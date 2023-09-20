@@ -1,8 +1,8 @@
 import axios from "axios";
 import crypto from "crypto";
 require('dotenv').config()
-import saveInLogFile from "./saveInLogFile";
-import { DeviceData } from "../interfaces/DeviceData.interface";
+import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
+import { DeviceData } from '../interfaces/DeviceData.interface';
 
 
 // Configuración de la solicitud
@@ -15,8 +15,8 @@ const password = process.env.DEVICE_1_ADMIN_PASSWORD;
 export const getDataFromDevice = async ({ 
       searchResultPosition = 0,
       maxResults = 30,
-      beginSerialNo = 1,
-      endSerialNo = 564
+      beginSerialNo = 0,
+      endSerialNo = 0
 }): Promise<DeviceData | undefined> => {
 
   
@@ -31,7 +31,7 @@ export const getDataFromDevice = async ({
   }
 
   if ( customHeaders === undefined ) {
-    saveInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
     return;
   }
 
@@ -72,34 +72,43 @@ export const getDataFromDevice = async ({
     // Paso 8: Realiza la solicitud real con el encabezado de autenticación digest
     try {
       const { data } = await axios({
-      method: httpMethod,
-      maxBodyLength: Infinity,
-      url: url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeaderDigest,
-      },
-      data: JSON.stringify({
-        "AcsEventCond": {
-          "major": 5,
-          "maxResults": maxResults,
-          "minor": 75,
-          "searchID": "1",
-          "searchResultPosition": searchResultPosition,
-          "timeReverseOrder": true,
-          "beginSerialNo": beginSerialNo, 
-          "endSerialNo": endSerialNo
-        }})
+        method: httpMethod,
+        maxBodyLength: Infinity,
+        url: url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeaderDigest,
+        },
+        data: JSON.stringify({
+          "AcsEventCond": {
+            "major": 5,
+            "maxResults": maxResults,
+            "minor": 75,
+            "searchID": "1",
+            "searchResultPosition": searchResultPosition,
+            // "timeReverseOrder": true,
+            "beginSerialNo": beginSerialNo, 
+            "endSerialNo": endSerialNo
+          }})
       });
       
-      saveInLogFile( new Date().toLocaleString() + ' - Consulta a dispositivo Exitosa.' );
+      let deviceData: DeviceData;
+      let newEvents: number;
+      deviceData = data;
+      newEvents = deviceData.AcsEvent.InfoList?.length ? deviceData.AcsEvent.InfoList?.length : 0 ;
 
-      return data;
+      if ( newEvents > 0 ) {
+        saveGreenInLogFile( `Consulta a dispositivo Exitosa - ${ newEvents } registros nuevos.` );
+      } else {
+        saveYellowInLogFile( `Consulta a dispositivo Exitosa - 0 registros nuevos.` );
+      }
+
+      return deviceData;
     } catch (error) {
-      saveInLogFile( new Date().toLocaleString() + ' - Error en consulta a dispositivo: ' + error );
+      saveGreenInLogFile( `Error en consulta a dispositivo: ` + error );
     }
   } else {
-    saveInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
   }
 }
 

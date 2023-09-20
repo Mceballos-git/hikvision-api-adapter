@@ -1,63 +1,106 @@
 import { getDataFromDevice } from "./utils/digestAuthHandler";
-import { initDB } from "./utils/dbUtils";
-import { startServer } from './utils/server';
-import { DeviceData, EventData } from './interfaces/DeviceData.interface';
-import urlToBlob from "./utils/urlToBlob";
+import { LastEventNumber, getLastEventfromDB, initDB, insertDataOnDB } from "./utils/dbUtils";
+import { DeviceData, EventData, NewEventData } from './interfaces/DeviceData.interface';
+import { saveYellowInLogFile } from "./utils/saveInLogFile";
+import { AxiosHeaders } from "axios";
+import {urlToBlob} from './utils/urlToBlob'
 
 var cron = require('node-cron');
 
-const username = process.env.DEVICE_1_ADMIN_USERNAME;
-const password = process.env.DEVICE_1_ADMIN_PASSWORD;
 
 initDB();
-startServer();
+// startServer();
 
+   
 async function getData() {
 
-  let deviceData: [EventData] | undefined;
-
   try {
-    // Realizo la llamada al dispositivo
-    const data: DeviceData | undefined = await getDataFromDevice({
+    let eventDataArray: EventData[];
+
+    // Extraigo el registro con ID mas alto de la DB
+    let lastEventFromDB: LastEventNumber | null = await getLastEventfromDB();
+    if ( !lastEventFromDB ) {
+      lastEventFromDB = { serialNo: 1 };
+    };
+
+    // Realizo la llamada al dispositivo 
+    // Buscando eventos con ID mas alto que el de la DB
+    const deviceData: DeviceData | undefined = await getDataFromDevice({
       searchResultPosition: 0,
-      maxResults: 30,
-      beginSerialNo: 600,
-      endSerialNo: 650,
+      maxResults: 15,
+      beginSerialNo: lastEventFromDB.serialNo + 1,
+      endSerialNo: lastEventFromDB.serialNo + 100,
     });
 
-    // Extraigo el array de eventos
-    deviceData = data?.AcsEvent.InfoList;
 
-    // Recorro el array
-    deviceData?.forEach( event => {
+    if ( deviceData?.AcsEvent?.totalMatches ) { 
 
-      const pictureURL = event.pictureURL;
-      const headers = new Headers({
-        'Authorization': `Basic ${btoa(username + ':' + password)}`
-      });
+      // Extraigo el array de eventos del dispositivo
+      eventDataArray = deviceData?.AcsEvent.InfoList;
 
-      // Convierto cada URL de imagen a formato BLOB
-      fetch( pictureURL, { headers: headers } )
-        .then((response) => response.blob())
-        .then((blob) => {
-          console.log('Esto deberia ser un BLOB valido: ---> ', blob);
-        })
-        .catch((error) => {
-          console.error('Error al obtener la imagen:', error);
+      for ( const event of eventDataArray ) {
+        const username = process.env.DEVICE_1_ADMIN_USERNAME;
+        const password = process.env.DEVICE_1_ADMIN_PASSWORD;
+        const pictureURL = event.pictureURL;
+
+        // Cargo credenciales para poder acceder a la imagen
+        const headers = new Headers({
+          'Authorization': `Basic ${btoa( username + ':' + password )}`
         });
-      
-    });
 
+        // Convierto a BLOB e inserto el evento en la DB
+        try {
+          const pictureBlob: Blob | null = await urlToBlob( pictureURL, headers );
 
-  } catch (error) {
-    console.log(error);    
-  }
+          if (pictureBlob) {
+
+            let newEvent: NewEventData = {
+              major: event.major,
+              minor: event.minor,
+              time: event.time,
+              cardType: event.cardType,
+              name: event.name,
+              cardReaderNo: event.cardReaderNo,
+              doorNo: event.doorNo,
+              employeeNoString: event.employeeNoString,
+              type: event.type,
+              serialNo: event.serialNo,
+              userType: event.userType,
+              currentVerifyMode: event.currentVerifyMode,
+              mask: event.mask,
+              pictureBlob: pictureBlob
+            }
+
+            await insertDataOnDB(newEvent);
+          }
+        } catch (error) {
+          saveYellowInLogFile( `Error al obtener la imagen` );
+        }
+      }
+    }
+  } catch( error ) {
+    saveYellowInLogFile( `Error de primer metodo: ` + error );
+  };
 }
 
+
 // Programa la tarea para ejecutarse cada un minuto
-const tareaCron = cron.schedule('* * * * * *', () => {
+
+let tiempo = process.env.TIMER_ACCESO_DISPOSITIVO;
+//"$tiempo"
+
+const tareaCron = cron.schedule( process.env.TIMER_ACCESO_DISPOSITIVO, () => {
   try {
-    getData();
+    getData(); //lectura de datos del lector y graba en sqlite
+
+    // TODO  postDataToCheckpint()  //envia a api de chackpoint
+
+    //TODO purga o verificar fecha para hacer purga
+
+
+
+
+
   } catch (error) {
     console.error('Error en la tarea:', error);
   }
@@ -78,13 +121,4 @@ process.on('unhandledRejection', (reason, promise) => {
   // Vuelve a iniciar la tarea después de un error de rechazo
   tareaCron.start();
 });
-
-
-
-
-
-
-
-
-
 
