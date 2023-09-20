@@ -40,6 +40,6 @@ export interface NewEventData {
   userType: string,
   currentVerifyMode: string,
   mask: string,
-  pictureBlob: Blob
+  pictureBlob: Buffer
 }
 
