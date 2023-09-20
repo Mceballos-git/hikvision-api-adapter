@@ -1,9 +1,7 @@
-import { getDataFromDevice } from "./utils/digestAuthHandler";
+import getDataFromDevice, { getImageFromUrl } from "./utils/digestAuthHandler";
 import { LastEventNumber, getLastEventfromDB, initDB, insertDataOnDB } from "./utils/dbUtils";
 import { DeviceData, EventData, NewEventData } from './interfaces/DeviceData.interface';
 import { saveYellowInLogFile } from "./utils/saveInLogFile";
-import { AxiosHeaders } from "axios";
-import {urlToBlob} from './utils/urlToBlob'
 
 var cron = require('node-cron');
 
@@ -39,20 +37,13 @@ async function getData() {
       eventDataArray = deviceData?.AcsEvent.InfoList;
 
       for ( const event of eventDataArray ) {
-        const username = process.env.DEVICE_1_ADMIN_USERNAME;
-        const password = process.env.DEVICE_1_ADMIN_PASSWORD;
         const pictureURL = event.pictureURL;
-
-        // Cargo credenciales para poder acceder a la imagen
-        const headers = new Headers({
-          'Authorization': `Basic ${btoa( username + ':' + password )}`
-        });
 
         // Convierto a BLOB e inserto el evento en la DB
         try {
-          const pictureBlob: Blob | null = await urlToBlob( pictureURL, headers );
+          const pictureData: Buffer | undefined = await getImageFromUrl( pictureURL );
 
-          if (pictureBlob) {
+          if (pictureData) {
 
             let newEvent: NewEventData = {
               major: event.major,
@@ -68,13 +59,13 @@ async function getData() {
               userType: event.userType,
               currentVerifyMode: event.currentVerifyMode,
               mask: event.mask,
-              pictureBlob: pictureBlob
+              pictureBlob: pictureData
             }
 
             await insertDataOnDB(newEvent);
           }
         } catch (error) {
-          saveYellowInLogFile( `Error al obtener la imagen` );
+          saveYellowInLogFile( `Error al obtener la imagen` + error);
         }
       }
     }
