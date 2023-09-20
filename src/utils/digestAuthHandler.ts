@@ -1,8 +1,9 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import crypto from "crypto";
 require('dotenv').config()
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
+const fs = require('fs');
 
 
 // Configuración de la solicitud
@@ -24,7 +25,6 @@ export const getDataFromDevice = async ({
   // Paso 1: Realiza una solicitud GET para obtener los parámetros de autenticación digest
   try {
     const response = await axios.get( url );
-    console.log( 'RESPONSE: ', response );
   } catch ( error: any ) {
     // console.log( error );
     customHeaders = error.response?.headers['www-authenticate']; 
@@ -112,6 +112,85 @@ export const getDataFromDevice = async ({
   }
 }
 
+
+
+
+export const getImageFromUrl = async ( url: string ): Promise<Buffer | undefined> => {
+  let customHeaders = '';
+  // Paso 1: Realiza una solicitud GET para obtener los parámetros de autenticación digest
+  try {
+    const response = await axios.get( url );
+  } catch ( error: any ) {
+    customHeaders = error.response?.headers['www-authenticate']; 
+  }
+
+  if ( customHeaders === undefined ) {
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    return;
+  }
+
+  const authHeader = customHeaders ;
+  const realmMatch = authHeader.match(/realm="([^"]+)"/);
+  const nonceMatch = authHeader.match(/nonce="([^"]+)"/);
+
+  if ( realmMatch && nonceMatch ) {
+    const realm = realmMatch[1];
+    const nonce = nonceMatch[1];
+
+    // Paso 2: Calcula el hash MD5 del username, realm y password
+    const ha1 = crypto.createHash('md5')
+      .update(`${username}:${realm}:${password}`)
+      .digest('hex');
+
+    // Paso 3: Genera un nonce contador (nc)
+    const nc = '00000001';
+
+    // Paso 4: Genera un valor cnonce
+    const cnonce = crypto.randomBytes(16).toString('hex');
+
+    // Paso 5: Calcula el hash MD5 del método HTTP y la URL
+    const httpMethod = 'GET';
+    const ha2 = crypto.createHash('md5')
+      .update(`${httpMethod}:${uri}`)
+      .digest('hex');
+
+    // Paso 6: Calcula el hash MD5 de ha1, nonce, nc, cnonce, qop y ha2
+    const qop = 'auth';
+    const response = crypto.createHash('md5')
+      .update(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
+      .digest('hex');
+
+    // Paso 7: Construye el encabezado de autenticación digest
+    const authHeaderDigest = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", qop=${qop}, nc=${nc}, cnonce="${cnonce}", response="${response}"`;
+
+    // Paso 8: Realiza la solicitud real con el encabezado de autenticación digest
+    try {
+      const headers = new Headers({
+          'Authorization': authHeaderDigest
+        });
+
+      const response = await fetch(url, { headers: headers });
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // const randomNumber = Math.floor(Math.random() * 250);;
+      // const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
+      // await fs.writeFileSync( outputPath + randomNumber +'.jpg', buffer );
+      // console.log(`Imagen descargada y guardada en ${outputPath}`);
+
+      return buffer;
+      
+    } catch (error) {
+      saveGreenInLogFile( `Error al generar imagen: ` + error );
+    }
+  } else {
+    saveGreenInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
+  }
+}
+
 export default getDataFromDevice;
+
+
+
 
 
