@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import crypto from "crypto";
 require('dotenv').config()
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
@@ -16,6 +16,8 @@ const password = process.env.DEVICE_1_ADMIN_PASSWORD;
 export const getDataFromDevice = async ({ 
       searchResultPosition = 0,
       maxResults = 30,
+      // startTime = '',
+      // endTime = ''
       beginSerialNo = 0,
       endSerialNo = 0
 }): Promise<DeviceData | undefined> => {
@@ -86,7 +88,9 @@ export const getDataFromDevice = async ({
             "minor": 75,
             "searchID": "1",
             "searchResultPosition": searchResultPosition,
-            // "timeReverseOrder": true,
+            // "startTime": startTime,
+            // "endTime": endTime,
+            // "timeReverseOrder": true,;
             "beginSerialNo": beginSerialNo, 
             "endSerialNo": endSerialNo
           }})
@@ -98,9 +102,9 @@ export const getDataFromDevice = async ({
       newEvents = deviceData.AcsEvent.InfoList?.length ? deviceData.AcsEvent.InfoList?.length : 0 ;
 
       if ( newEvents > 0 ) {
-        saveGreenInLogFile( `Consulta a dispositivo Exitosa - ${ newEvents } registros nuevos.` );
+        saveGreenInLogFile( `Consulta a dispositivo Exitosa - ${ newEvents } registros nuevos` );
       } else {
-        saveYellowInLogFile( `Consulta a dispositivo Exitosa - 0 registros nuevos.` );
+        saveYellowInLogFile( `Consulta a dispositivo Exitosa - 0 registros nuevos` );
       }
 
       return deviceData;
@@ -172,11 +176,6 @@ export const getImageFromUrl = async ( url: string ): Promise<Buffer | undefined
       const response = await fetch(url, { headers: headers });
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-
-      // const randomNumber = Math.floor(Math.random() * 250);;
-      // const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
-      // await fs.writeFileSync( outputPath + randomNumber +'.jpg', buffer );
-      // console.log(`Imagen descargada y guardada en ${outputPath}`);
 
       return buffer;
       
