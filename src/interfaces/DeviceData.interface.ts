@@ -40,6 +40,9 @@ export interface NewEventData {
   userType: string,
   currentVerifyMode: string,
   mask: string,
+  numero_empresa: number,
+  numero_sucursal: number,
+  enviado: boolean,
   pictureBlob: Buffer
 }
 
