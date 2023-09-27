@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 export const saveGreenInLogFile = async ( message: string ) => {
-  fs.appendFile("LOG-TEST.txt", new Date().toLocaleString() + ' - ' + message + '\n', (err) => {
+  fs.appendFile("./logs/log.txt", new Date().toLocaleString() + ' - ' + message + '\n', (err) => {
     if (err) {
       console.error( '\x1b[31m%s\x1b[0m', new Date().toLocaleString() + ' - Error al guardar el log: ', err );
     } else {
@@ -13,7 +13,7 @@ export const saveGreenInLogFile = async ( message: string ) => {
 
 
 export const saveYellowInLogFile = async ( message: string ) => {
-  fs.appendFile("LOG-TEST.txt", new Date().toLocaleString() + ' - ' + message + '\n', (err) => {
+  fs.appendFile("./logs/log.txt", new Date().toLocaleString() + ' - ' + message + '\n', (err) => {
     if (err) {
       console.error( '\x1b[31m%s\x1b[0m', new Date().toLocaleString() + ' - Error al guardar el log: ', err );
     } else {
@@ -23,7 +23,7 @@ export const saveYellowInLogFile = async ( message: string ) => {
 }
 
 export const saveInLogFile = async ( message: string ) => {
-  fs.appendFile("LOG-TEST.txt", new Date().toLocaleString() + ' - ' + message + '\n', (err) => {
+  fs.appendFile("./logs/log.txt", new Date().toLocaleString() + ' - ' + message + '\n', (err) => {
     if (err) {
       console.error( new Date().toLocaleString() + ' - Error al guardar el log: ', err );
     } else {
