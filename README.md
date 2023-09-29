@@ -9,7 +9,7 @@ Aplicacion de Node para la recoleccion de eventos de un Recognition Face Termina
 ## Tabla de contenidos
 ### Aplicacion
 - [Instalaciones necesarias](#instalaciones-necesarias)
-- [Instrucciones de ejecución](#instrucciones-de-ejecucion)
+- [Instrucciones de ejecución](#instrucciones-de-ejecución)
 - [Datos tecnicos](#datos-tecnicos)
 
 ---
