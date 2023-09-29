@@ -7,10 +7,11 @@
 Aplicacion de Node para la recoleccion de eventos de un Recognition Face Terminal marca Hikvision
 
 ## Tabla de contenidos
-### Aplicacion
-- [Instalaciones necesarias](#instalaciones-necesarias)
-- [Instrucciones de ejecución](#instrucciones-de-ejecución)
-- [Datos tecnicos](#datos-tecnicos)
+
+### Datos tecnicos
+- Se utilizó NodeJS 18.13.0 con Typescript 5.2.2.
+- Se utilizó SQLite 5.1.6 como base de datos relacional para el proyecto.
+- En la DB local, se graban las imagenes en formato Buffer para poder visualizarlas desde cualquier editor de bases de datos.
 
 ---
 
@@ -58,7 +59,3 @@ Este comando crea la version de producción del proyecto dentro de la carpeta {i
 npm run build
 ```
 
-### Datos tecnicos
-- Se utilizó NodeJS 18.13.0 con Typescript 5.2.2.
-- Se utilizó SQLite 5.1.6 como base de datos relacional para el proyecto.
-- En la DB local, se graban las imagenes en formato Buffer para poder visualizarlas desde cualquier editor de bases de datos.
