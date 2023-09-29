@@ -5,7 +5,6 @@ import { deleteRecordsFromDB, retrieveDatabaseRecordsQuantity } from './dbUtils'
 
 
 export const backupLargeFiles = async (): Promise<void> => {
-
   return new Promise( async (resolve, reject) => {
     try {
       // Verifico tamaño del archivo de logs
@@ -18,7 +17,7 @@ export const backupLargeFiles = async (): Promise<void> => {
       const month = date.getMonth();
       const day   = date.getDay();
 
-      // Constato el tamaño del archivo en MB y lo comparo con la variable de entorno
+      // Constato el tamaño del archivo de log en MB y lo comparo con la variable de entorno
       if ( fileSizeInMegaBytes > parseInt( process.env.BACKUP_LOG_IN_MEGABYTES! ) ) {
         // Renombro el archivo y lo muevo a la carpeta logs/backups
         rename( './logs/log.txt', `./logs/backups/log-${day}-${month}-${year}.txt`, ( err ) => {
@@ -30,7 +29,7 @@ export const backupLargeFiles = async (): Promise<void> => {
       // Cuento la cantidad de registros de la DB y lo comparo con la variable de entorno
       const dbRecordsCount = await retrieveDatabaseRecordsQuantity();
       if ( dbRecordsCount.count > parseInt( process.env.BACKUP_DB_ON_RECORDS_QUANTITY! )) {
-      // Renombro y copio la DB a la carpeta db/backups
+        // Renombro y copio la DB a la carpeta db/backups
         copyFile( './db/events.db', `./db/backups/events-${day}-${month}-${year}.db`, ( err ) => {
           if ( err ) reject( saveYellowInLogFile( 'Error al renombrar DB: ' + err ) );
           resolve( saveGreenInLogFile(`Backup de DB completo -> ./db/backups/events-${day}-${month}-${year}.db` ));
@@ -39,10 +38,8 @@ export const backupLargeFiles = async (): Promise<void> => {
         await deleteRecordsFromDB();
       };
 
-
     } catch ( err ) {
-      saveYellowInLogFile( 'Error al realizar backup de log: ' + err );
+      saveYellowInLogFile( 'Error al realizar backup: ' + err );
     }
   });
-
 }
