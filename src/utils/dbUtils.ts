@@ -1,4 +1,4 @@
-import { NewEventData } from "../interfaces/DeviceData.interface";
+import { DatabaseEventData } from "../interfaces/DatabaseEventData.interface";
 import { saveYellowInLogFile, saveGreenInLogFile, saveInLogFile } from "./saveInLogFile";
 const sqlite3 = require('sqlite3');
 
@@ -32,23 +32,24 @@ export const initDB = async (): Promise<void> => {
     const db = new sqlite3.Database('./db/events.db');
 
     const createTableQuery = "CREATE TABLE IF NOT EXISTS events (id INTEGER primary key AUTOINCREMENT," +
-                           "major INTEGER(4) NOT NULL DEFAULT '0'," +
-                           "minor INTEGER(4) NOT NULL DEFAULT '0'," +
-                           "time varchar(45) UNIQUE NOT NULL," +
-                           "cardType INTEGER NOT NULL DEFAULT '1'," +
-                           "name varchar(50) NOT NULL DEFAULT ''," +
-                           "cardReaderNo INTEGER NOT NULL DEFAULT '0'," +
-                           "doorNo INTEGER NOT NULL DEFAULT '0'," +
-                           "employeeNoString varchar(10) NOT NULL DEFAULT '0'," +
-                           "type INTEGER NOT NULL DEFAULT '0'," +      
-                           "serialNo INTEGER NOT NULL UNIQUE," +
-                           "userType varchar(20) NOT NULL DEFAULT ''," +
-                           "currentVerifyMode varchar(20) NOT NULL DEFAULT ''," +
-                           "mask varchar(10) NOT NULL DEFAULT ''," +
-                           "numero_empresa INTEGER NOT NULL DEFAULT ''," +
-                           "numero_sucursal INTEGER NOT NULL DEFAULT ''," +
-                           "enviado BOOLEAN NOT NULL DEFAULT false," +
-                           "pictureURL BLOB NOT NULL DEFAULT '');"
+                            "major INTEGER(4) NOT NULL DEFAULT '0'," +
+                            "minor INTEGER(4) NOT NULL DEFAULT '0'," +
+                            "time varchar(45) UNIQUE NOT NULL," +
+                            "cardType INTEGER NOT NULL DEFAULT '1'," +
+                            "name varchar(50) NOT NULL DEFAULT ''," +
+                            "cardReaderNo INTEGER NOT NULL DEFAULT '0'," +
+                            "doorNo INTEGER NOT NULL DEFAULT '0'," +
+                            "employeeNoString varchar(10) NOT NULL DEFAULT '0'," +
+                            "type INTEGER NOT NULL DEFAULT '0'," +      
+                            "serialNo INTEGER NOT NULL UNIQUE," +
+                            "userType varchar(20) NOT NULL DEFAULT ''," +
+                            "currentVerifyMode varchar(20) NOT NULL DEFAULT ''," +
+                            "mask varchar(10) NOT NULL DEFAULT ''," +
+                            "numero_empresa INTEGER NOT NULL DEFAULT ''," +
+                            "numero_sucursal INTEGER NOT NULL DEFAULT ''," +
+                            "enviado BOOLEAN NOT NULL DEFAULT false," +
+                            "pictureURL VARCHAR(200) NOT NULL DEFAULT ''," +
+                            "pictureBuffer BLOB NOT NULL DEFAULT '');"
 
     db.run(createTableQuery, ( err: any ) => {
       if ( err ) {
@@ -60,6 +61,28 @@ export const initDB = async (): Promise<void> => {
     dbClose();
   });
   
+};
+
+export const retrieveDatabaseUnsubmittedRecords = async (): Promise<DatabaseEventData[]> => {
+  return new Promise( ( resolve, reject ) => {
+    const db = new sqlite3.Database('./db/events.db', sqlite3.OPEN_READWRITE);
+    let sql = `SELECT * FROM events WHERE enviado = 0`;
+    
+    db.all(sql, [], ( err: Error, rows: DatabaseEventData[] ) => {
+      if ( err ) {
+        saveYellowInLogFile( 'Error consultando registros sin enviar en DB: '+ err.message );
+        reject( err );
+      } else {
+        if ( rows ) {
+          saveGreenInLogFile( 'Cantidad de registros sin enviar en DB: '+ rows.length );
+        } else {
+          saveYellowInLogFile( 'No hay registros sin enviar en la DB' );
+        }
+        resolve( rows );
+      }
+      dbClose();
+    });
+  })
 };
 
 export const retrieveDatabaseRecordsQuantity = async (): Promise<EventCount> => {
@@ -89,10 +112,9 @@ export const deleteRecordsFromDB = async (): Promise<any> => {
     const db = new sqlite3.Database('./db/events.db', sqlite3.OPEN_READWRITE);
     let sql = `DELETE FROM events WHERE (serialNo != (SELECT MAX(serialNo) FROM events) AND (enviado = 1))`;
     
-    db.run(sql, ( err: Error, row: any ) => {
+    db.run(sql, ( err: Error ) => {
       if ( err ) {
-        saveYellowInLogFile( 'Error borrando registros en DB: '+ err.message );
-        reject( err );
+        reject( saveYellowInLogFile( 'Error borrando registros en DB: '+ err ) );
       } else {
         resolve( saveGreenInLogFile( 'Registros borrados correctamente' ) );
       }
@@ -148,12 +170,12 @@ export const getLastEventfromDBByTime = (): Promise<LastEventString | null> => {
 };
 
 
-export const insertDataOnDB = async ( event: NewEventData ): Promise<number | null> => {
+export const insertDataOnDB = async ( event: DatabaseEventData ): Promise<number | null> => {
   return new Promise( async ( resolve, reject ) => {
     let db = new sqlite3.Database('./db/events.db');
     const sql = `INSERT INTO events(major, minor, time, cardType, name, cardReaderNo, doorNo, employeeNoString, ` +
-      `type, serialNo, userType, currentVerifyMode, mask, numero_empresa, numero_sucursal, enviado, pictureURL) ` +
-      `VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      `type, serialNo, userType, currentVerifyMode, mask, numero_empresa, numero_sucursal, enviado, pictureURL, pictureBuffer) ` +
+      `VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const values = [
       event.major,
@@ -172,7 +194,8 @@ export const insertDataOnDB = async ( event: NewEventData ): Promise<number | nu
       event.numero_empresa,
       event.numero_sucursal,
       event.enviado,
-      event.pictureBlob
+      event.pictureURL,
+      event.pictureBuffer
     ];
 
     await db.run(sql, values, function(err: any) {
