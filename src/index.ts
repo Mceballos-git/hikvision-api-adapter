@@ -1,6 +1,7 @@
 import { backupLargeFiles } from "./utils/backupLargeFiles";
 import { initDB } from "./utils/dbUtils";
 import { getDataAndSaveInDB } from "./utils/getDataAndSaveInDB";
+import { sendDataToServer } from "./utils/sendDataToServer";
 var cron = require('node-cron');
 
 
@@ -8,11 +9,10 @@ var cron = require('node-cron');
 const tareaCron = cron.schedule( process.env.TIMER_ACCESO_DISPOSITIVO, async () => {
   try {
 
-    await initDB();  
-    await getDataAndSaveInDB(); //lectura de datos del lector y graba en sqlite
-    await backupLargeFiles();
-
-    // TODO  postDataToCheckpint()  //envia a api de chackpoint
+    await initDB();             // Creo la DB si no existe
+    await getDataAndSaveInDB(); // Lectura de datos del dispositivo y los grabo en DB
+    await sendDataToServer();   // Envio data al servidor
+    await backupLargeFiles();   // Realizo backup del LOG y de la DB cuando superan los valores configurados
 
   } catch (error) {
     console.error('Error en la tarea:', error);
