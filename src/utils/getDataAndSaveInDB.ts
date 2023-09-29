@@ -1,13 +1,14 @@
-import { DeviceData, EventData, NewEventData } from "../interfaces/DeviceData.interface";
+import { DeviceData, DeviceEventData } from "../interfaces/DeviceData.interface";
+import { DatabaseEventData } from "../interfaces/DatabaseEventData.interface";
 import { LastEventNumber, getLastEventfromDBBySerialNo, insertDataOnDB } from "./dbUtils";
-import getDataFromDevice, { getImageFromUrl } from "./digestAuthHandler";
+import { getDataFromDevice, getImageBufferFromUrl } from "./digestAuthHandler";
 import { saveYellowInLogFile } from "./saveInLogFile";
 
  
 export const getDataAndSaveInDB = async() => {
 
   try {
-    let eventDataArray: EventData[];
+    let eventDataArray: DeviceEventData[];
 
     // Extraigo el registro con ID mas alto de la DB
     let lastEventFromDB: LastEventNumber | null = await getLastEventfromDBBySerialNo();
@@ -38,36 +39,32 @@ export const getDataAndSaveInDB = async() => {
       eventDataArray = deviceData?.AcsEvent.InfoList;
 
       for ( const event of eventDataArray ) {
-        const pictureURL = event.pictureURL;
-
-        // Convierto a BLOB e inserto el evento en la DB
         try {
-          const pictureData: Buffer | undefined = await getImageFromUrl( pictureURL );
 
-          if (pictureData) {
+          const pictureBuffer: Buffer | undefined = await getImageBufferFromUrl( event.pictureURL )
 
-            let newEvent: NewEventData = {
-              major: event.major,
-              minor: event.minor,
-              time: event.time,
-              cardType: event.cardType,
-              name: event.name,
-              cardReaderNo: event.cardReaderNo,
-              doorNo: event.doorNo,
-              employeeNoString: event.employeeNoString,
-              type: event.type,
-              serialNo: event.serialNo,
-              userType: event.userType,
-              currentVerifyMode: event.currentVerifyMode,
-              mask: event.mask,
-              pictureBlob: pictureData,
-              numero_empresa:  parseInt(process.env.NUMERO_EMPRESA!),
-              numero_sucursal: parseInt(process.env.NUMERO_SUCURSAL!),
-              enviado: false
-            }
-
-            await insertDataOnDB(newEvent);
+          let newEvent: DatabaseEventData = {
+            major: event.major,
+            minor: event.minor,
+            time: event.time,
+            cardType: event.cardType,
+            name: event.name,
+            cardReaderNo: event.cardReaderNo,
+            doorNo: event.doorNo,
+            employeeNoString: event.employeeNoString,
+            type: event.type,
+            serialNo: event.serialNo,
+            userType: event.userType,
+            currentVerifyMode: event.currentVerifyMode,
+            mask: event.mask,
+            numero_empresa:  parseInt(process.env.NUMERO_EMPRESA!),
+            numero_sucursal: parseInt(process.env.NUMERO_SUCURSAL!),
+            enviado: false,
+            pictureURL: event.pictureURL,
+            pictureBuffer: pictureBuffer!
           }
+
+          await insertDataOnDB(newEvent);
         } catch (error) {
           saveYellowInLogFile( `Error al obtener la imagen` + error);
         }
