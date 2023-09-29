@@ -4,7 +4,9 @@
 
 
 # HIKVISION API ADAPTER
-Aplicacion de Node para la recoleccion de eventos de un Recognition Face Terminal marca Hikvision
+Aplicacion de Node para la recoleccion de eventos de un Recognition Face Terminal.<br>
+Marca: Hikvision<br>
+Modelo: DS-K1T343MWX
 
 ## Tabla de contenidos
 
