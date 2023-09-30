@@ -14,8 +14,8 @@ const tareaCron = cron.schedule( process.env.TIMER_ACCESO_DISPOSITIVO, async () 
     await sendDataToServer();   // Envio data al servidor
     await backupLargeFiles();   // Realizo backup del LOG y de la DB cuando superan los valores configurados
 
-  } catch (error) {
-    console.error('Error en la tarea:', error);
+  } catch (error:any) {
+    console.error('Error en cron job:', error);
   }
 }, { scheduled: true });
 
