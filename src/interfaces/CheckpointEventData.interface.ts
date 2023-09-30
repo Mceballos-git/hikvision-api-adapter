@@ -1,19 +1,10 @@
 export interface CheckpointEventData {
-  // major: number,
-  // minor: number,
-  time: string,
-  // cardType: number,
-  name: string,
-  // cardReaderNo: number,
-  // doorNo: number,
-  employeeNoString: string,
-  // type: number,
-  // serialNo: number,
-  // userType: string,
-  // currentVerifyMode: string,
-  // mask: string,
-  numero_empresa: number,
-  numero_sucursal: number,
-  // enviado: boolean,
-  pictureBase64: string,
+  id: number,
+  empleado: number,
+  hora: string,
+  hora1: string
+  fecha: string,
+  empresa: number,
+  sucursal: number,
+  imagen: string
 }
