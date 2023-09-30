@@ -49,7 +49,8 @@ export const initDB = async (): Promise<void> => {
                             "numero_sucursal INTEGER NOT NULL DEFAULT ''," +
                             "enviado BOOLEAN NOT NULL DEFAULT false," +
                             "pictureURL VARCHAR(200) NOT NULL DEFAULT ''," +
-                            "pictureBuffer BLOB NOT NULL DEFAULT '');"
+                            "pictureBuffer BLOB NOT NULL DEFAULT ''," +
+                            "UNIQUE(time, employeeNoString));";
 
     db.run(createTableQuery, ( err: any ) => {
       if ( err ) {
@@ -61,6 +62,22 @@ export const initDB = async (): Promise<void> => {
     dbClose();
   });
   
+};
+
+export const markRecordAsSent = async ( serialNo: number ): Promise<void> => {
+  return new Promise( ( resolve, reject ) => {
+    const db = new sqlite3.Database('./db/events.db', sqlite3.OPEN_READWRITE);
+    let sql = `UPDATE events SET enviado = 1 WHERE serialNo = ${ serialNo }`;
+    
+    db.run(sql, ( err: Error ) => {
+      if ( err ) {
+        reject(saveYellowInLogFile( 'Error al marcar como enviado el registro: '+ err ));
+      } else {
+        // resolve(saveGreenInLogFile( 'Registro actualizado correctamente' ));
+      }
+      dbClose();
+    });
+  })
 };
 
 export const retrieveDatabaseUnsubmittedRecords = async (): Promise<DatabaseEventData[]> => {
