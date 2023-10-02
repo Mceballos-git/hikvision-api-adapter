@@ -41,7 +41,7 @@ export const sendDataToServer = async (): Promise<void> => {
           dataToSend.push( eventToSend );
         }
         const response = await axios.post( checkpointURL, dataToSend );
-        console.log(response);
+        // console.log(response);
 
         for ( const event of unsubmittedRecords ) {
           markRecordAsSent( event.serialNo );
