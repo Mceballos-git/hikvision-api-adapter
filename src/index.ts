@@ -2,11 +2,11 @@ import { backupLargeFiles } from "./utils/backupLargeFiles";
 import { initDB } from "./utils/dbUtils";
 import { getDataAndSaveInDB } from "./utils/getDataAndSaveInDB";
 import { sendDataToServer } from "./utils/sendDataToServer";
+import { TIMER_ACCESO_DISPOSITIVO } from '../config.json'
 var cron = require('node-cron');
 
-
 // Programa la tarea para ejecutarse cada un minuto
-const tareaCron = cron.schedule( process.env.TIMER_ACCESO_DISPOSITIVO, async () => {
+const tareaCron = cron.schedule( TIMER_ACCESO_DISPOSITIVO , async () => {
   try {
 
     await initDB();             // Creo la DB si no existe
@@ -14,7 +14,7 @@ const tareaCron = cron.schedule( process.env.TIMER_ACCESO_DISPOSITIVO, async () 
     await sendDataToServer();   // Envio data al servidor
     await backupLargeFiles();   // Realizo backup del LOG y de la DB cuando superan los valores configurados
 
-  } catch (error:any) {
+  } catch (error) {
     console.error('Error en cron job:', error);
   }
 }, { scheduled: true });
