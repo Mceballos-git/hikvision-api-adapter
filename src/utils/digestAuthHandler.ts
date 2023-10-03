@@ -1,6 +1,5 @@
 import axios from "axios";
 import crypto from "crypto";
-require('dotenv').config()
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
 import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD } from '../../config.json';
