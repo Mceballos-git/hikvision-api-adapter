@@ -2,6 +2,8 @@ import fs from 'fs/promises';
 import { rename, copyFile } from 'node:fs';
 import { saveGreenInLogFile, saveYellowInLogFile } from './saveInLogFile';
 import { deleteRecordsFromDB, retrieveDatabaseRecordsQuantity } from './dbUtils';
+import { BACKUP_LOG_IN_MEGABYTES, BACKUP_DB_ON_RECORDS_QUANTITY } from '../../config.json'
+
 
 
 export const backupLargeFiles = async (): Promise<void> => {
@@ -18,7 +20,7 @@ export const backupLargeFiles = async (): Promise<void> => {
       const day   = date.getDay();
 
       // Constato el tamaño del archivo de log en MB y lo comparo con la variable de entorno
-      if ( fileSizeInMegaBytes > parseInt( process.env.BACKUP_LOG_IN_MEGABYTES! ) ) {
+      if ( fileSizeInMegaBytes > parseInt( BACKUP_LOG_IN_MEGABYTES! ) ) {
         // Renombro el archivo y lo muevo a la carpeta logs/backups
         rename( './logs/log.txt', `./logs/backups/log-${day}-${month}-${year}.txt`, ( err ) => {
           if ( err ) reject( saveYellowInLogFile( 'Error al renombrar log: ' + err ) );
@@ -28,7 +30,7 @@ export const backupLargeFiles = async (): Promise<void> => {
       
       // Cuento la cantidad de registros de la DB y lo comparo con la variable de entorno
       const dbRecordsCount = await retrieveDatabaseRecordsQuantity();
-      if ( dbRecordsCount.count > parseInt( process.env.BACKUP_DB_ON_RECORDS_QUANTITY! )) {
+      if ( dbRecordsCount.count > parseInt( BACKUP_DB_ON_RECORDS_QUANTITY! )) {
         // Renombro y copio la DB a la carpeta db/backups
         copyFile( './db/events.db', `./db/backups/events-${day}-${month}-${year}.db`, ( err ) => {
           if ( err ) reject( saveYellowInLogFile( 'Error al renombrar DB: ' + err ) );
