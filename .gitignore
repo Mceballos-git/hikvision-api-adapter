@@ -1,4 +1,4 @@
-/db
+/db/events.db
 /dist
-/logs
+/logs/log.txt
 /node_modules
