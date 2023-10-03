@@ -13,6 +13,7 @@ Modelo: DS-K1T343MWX
 ### Datos tecnicos
 - Se utilizó NodeJS 18.13.0 con Typescript 5.2.2.
 - Se utilizó SQLite 5.1.6 como base de datos relacional para el proyecto.
+- En la raiz se encuentra el archivo "config.json" con todas las configuraciones necesarias.
 - En la DB local, se graban las imagenes en formato Buffer para poder visualizarlas desde cualquier editor de bases de datos.
 
 ---
