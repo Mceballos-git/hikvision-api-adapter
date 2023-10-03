@@ -3,14 +3,15 @@ import crypto from "crypto";
 require('dotenv').config()
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
+import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD } from '../../config.json';
 const fs = require('fs');
 
 
 // Configuración de la solicitud
-const url      = process.env.DEVICE_1_URL as string;
-const uri      = process.env.DEVICE_1_URI;
-const username = process.env.DEVICE_1_ADMIN_USERNAME;
-const password = process.env.DEVICE_1_ADMIN_PASSWORD;
+const url      = DEVICE_1_URL;
+const uri      = DEVICE_1_URI;
+const username = DEVICE_1_ADMIN_USERNAME;
+const password = DEVICE_1_ADMIN_PASSWORD;
 
 
 export const getDataFromDevice = async ({ 

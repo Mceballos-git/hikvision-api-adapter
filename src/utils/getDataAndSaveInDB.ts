@@ -3,6 +3,7 @@ import { DatabaseEventData } from "../interfaces/DatabaseEventData.interface";
 import { LastEventNumber, getLastEventfromDBBySerialNo, insertDataOnDB } from "./dbUtils";
 import { getDataFromDevice, getImageBufferFromUrl } from "./digestAuthHandler";
 import { saveYellowInLogFile } from "./saveInLogFile";
+import { NUMERO_EMPRESA, NUMERO_SUCURSAL } from '../../config.json'
 
  
 export const getDataAndSaveInDB = async() => {
@@ -57,8 +58,8 @@ export const getDataAndSaveInDB = async() => {
             userType: event.userType,
             currentVerifyMode: event.currentVerifyMode,
             mask: event.mask,
-            numero_empresa:  parseInt(process.env.NUMERO_EMPRESA!),
-            numero_sucursal: parseInt(process.env.NUMERO_SUCURSAL!),
+            numero_empresa:  parseInt(NUMERO_EMPRESA!),
+            numero_sucursal: parseInt(NUMERO_SUCURSAL!),
             enviado: false,
             pictureURL: event.pictureURL,
             pictureBuffer: pictureBuffer!

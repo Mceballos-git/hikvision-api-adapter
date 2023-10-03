@@ -5,12 +5,13 @@ import { CheckpointEventData } from '../interfaces/CheckpointEventData.interface
 import axios from "axios";
 import { cleanTimeZoneFromFullDate, extractDateFromFullDate, extractTimeFromFullDate } from "./formatDate";
 import { saveGreenInLogFile, saveYellowInLogFile } from "./saveInLogFile";
+import { CHECKPOINT_SERVER_URL, NUMERO_EMPRESA, NUMERO_SUCURSAL } from '../../config.json'
 
 
 
-const checkpointURL = process.env.CHECKPOINT_SERVER_URL as string;
-const numeroEmpresa = process.env.NUMERO_EMPRESA;
-const numeroSucursal = process.env.NUMERO_SUCURSAL;
+const checkpointURL = CHECKPOINT_SERVER_URL;
+const numeroEmpresa = NUMERO_EMPRESA;
+const numeroSucursal = NUMERO_SUCURSAL;
 
 export const sendDataToServer = async (): Promise<void> => {
   return new Promise( async (resolve, reject) => {
