@@ -21,7 +21,8 @@ Modelo: DS-K1T343MWX
 ### Instalaciones necesarias
 - [Debes tener GIT instalado](https://git-scm.com/)
 - [Debes tener Node/npm instalado](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-- [Debes tener @vercel/ncc instalado](https://www.npmjs.com/package/@vercel/ncc)
+- [Debes tener @vercel/ncc instalado](https://www.npmjs.com/package/@vercel/ncc)<br>
+npm i -g @vercel/ncc
 
 ---
 
@@ -49,9 +50,9 @@ ncc build src/index.ts
 ```
 7. Copiar dentro de la carpeta "dist", el directorio "db" y "logs".
 
-
-
-
-
-## Listo, la carpeta "dist" contiene todo lo necesario para ser implementada en la pc del cliente.
+8. Ingresar al directorio "dist" y poner a correr la aplicacion con el siguiente comando:
+```
+node index.js
+```
+ Listo, la carpeta "dist" contiene todo lo necesario para ser implementada en la pc del cliente.
 
