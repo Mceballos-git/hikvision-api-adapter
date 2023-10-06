@@ -46,6 +46,11 @@ export const sendDataToServer = async (): Promise<void> => {
         // Envio un solo array con toda la informacion
         const response: CheckpointResponse = await axios.post( checkpointURL, dataToSend );
 
+        // Checkeo que venga el array "items" en la respuesta
+        if ( !response.items ) {
+          reject( saveYellowInLogFile( 'Se produjo un error al enviar los registros' ) );
+        };
+
         for ( const item of response.items ) {
           // Recorro la respuesta, todo item que traiga ID != 0, se graba como enviado
           if ( item.last_id != 0 ) await markRecordAsSent( item.last_id );
@@ -54,9 +59,9 @@ export const sendDataToServer = async (): Promise<void> => {
         // Calculo cuantos registros OK hay en la respuesta del server
         const dataSendOk: Item[] = response.items.filter( (item) => item.last_id != 0 ); 
 
-        resolve(saveGreenInLogFile( `${dataToSend.length} registros enviados -- ${dataSendOk.length} registros recibidos` ));
+        resolve( saveGreenInLogFile(`${dataToSend.length} registros enviados -- ${dataSendOk.length} registros recibidos` ));
       } else {
-        resolve(saveGreenInLogFile( `Sin registros nuevos para enviar` ));
+        resolve( saveGreenInLogFile(`Sin registros nuevos para enviar` ));
       }
     } catch (error) {
       reject( saveYellowInLogFile( 'No se pudieron enviar los registros: ' + error))
