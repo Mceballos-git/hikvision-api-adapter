@@ -48,7 +48,7 @@ export const sendDataToServer = async (): Promise<void> => {
 
         // Checkeo que venga el array "items" en la respuesta
         if ( !response.items ) {
-          reject( saveYellowInLogFile( 'Se produjo un error al enviar los registros' ) );
+          reject( saveYellowInLogFile( 'Error al procesar los registros en Checkpoint' ) );
         };
 
         for ( const item of response.items ) {
