@@ -16,5 +16,5 @@ export interface DatabaseEventData {
   numero_sucursal: number,
   enviado: boolean,
   pictureURL: string,
-  pictureBuffer: Buffer,
+  // pictureBuffer: Buffer,
 }
