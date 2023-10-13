@@ -34,7 +34,7 @@ export const getDataFromDevice = async ({
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -113,7 +113,7 @@ export const getDataFromDevice = async ({
       saveYellowInLogFile( `Error en consulta a dispositivo: ` + error );
     }
   } else {
-    saveYellowInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
   }
 }
 
@@ -128,7 +128,7 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -199,7 +199,7 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
       saveYellowInLogFile( `Error al generar imagen en Base64: ` + error );
     }
   } else {
-    saveYellowInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
   }
 }
 
@@ -214,7 +214,7 @@ export const getImageBufferFromUrl = async ( url: string ): Promise<Buffer | und
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -268,6 +268,6 @@ export const getImageBufferFromUrl = async ( url: string ): Promise<Buffer | und
       saveYellowInLogFile( `Error al generar el Buffer de la imagen: ` + error );
     }
   } else {
-    saveYellowInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
   }
 }
