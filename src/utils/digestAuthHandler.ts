@@ -178,6 +178,9 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
       let base64String = '';
       await sharp( arrayBuffer )
         .resize({ width: 100 })
+        .jpeg({
+          quality: 30
+        })
         .toBuffer()
         .then( (data: Buffer) => {
           // 100 pixels wide, auto-scaled height
