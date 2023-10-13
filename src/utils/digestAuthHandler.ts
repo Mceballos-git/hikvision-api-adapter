@@ -4,6 +4,7 @@ import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
 import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD } from '../../config.json';
 const fs = require('fs');
+const sharp = require('sharp');
 
 
 // Configuración de la solicitud
@@ -33,7 +34,7 @@ export const getDataFromDevice = async ({
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -112,7 +113,7 @@ export const getDataFromDevice = async ({
       saveYellowInLogFile( `Error en consulta a dispositivo: ` + error );
     }
   } else {
-    saveYellowInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
   }
 }
 
@@ -127,7 +128,7 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -173,7 +174,24 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
 
       const response = await fetch(url, { headers: headers });
       const arrayBuffer = await response.arrayBuffer();
-      const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+      let base64String = '';
+      await sharp( arrayBuffer )
+        .resize({ width: 100 })
+        .jpeg({
+          quality: 50
+        })
+        .toBuffer()
+        .then( (data: Buffer) => {
+          // 100 pixels wide, auto-scaled height
+
+        // const randomNumber = Math.floor(Math.random() * 250);;
+        // const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
+        // fs.writeFileSync( outputPath + randomNumber +'.jpg', data );
+        // console.log(`Imagen descargada y guardada en ${outputPath}`);
+        
+        base64String = btoa(String.fromCharCode(...new Uint8Array(data)));
+      });
 
       return base64String;
       
@@ -181,7 +199,7 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
       saveYellowInLogFile( `Error al generar imagen en Base64: ` + error );
     }
   } else {
-    saveYellowInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
   }
 }
 
@@ -196,7 +214,7 @@ export const getImageBufferFromUrl = async ( url: string ): Promise<Buffer | und
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No se pudo obtener el encabezado WWW-Authenticate' );
+    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -250,6 +268,6 @@ export const getImageBufferFromUrl = async ( url: string ): Promise<Buffer | und
       saveYellowInLogFile( `Error al generar el Buffer de la imagen: ` + error );
     }
   } else {
-    saveYellowInLogFile( 'No se pudo obtener el encabezado WWW-Authenticate' );
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
   }
 }

@@ -42,7 +42,7 @@ export const getDataAndSaveInDB = async() => {
       for ( const event of eventDataArray ) {
         try {
 
-          const pictureBuffer: Buffer | undefined = await getImageBufferFromUrl( event.pictureURL )
+          // const pictureBuffer: Buffer | undefined = await getImageBufferFromUrl( event.pictureURL )
 
           let newEvent: DatabaseEventData = {
             major: event.major,
@@ -62,7 +62,7 @@ export const getDataAndSaveInDB = async() => {
             numero_sucursal: parseInt(NUMERO_SUCURSAL!),
             enviado: false,
             pictureURL: event.pictureURL,
-            pictureBuffer: pictureBuffer!
+            // pictureBuffer: pictureBuffer!
           }
 
           await insertDataOnDB(newEvent);

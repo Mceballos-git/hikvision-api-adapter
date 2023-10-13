@@ -49,7 +49,7 @@ export const initDB = async (): Promise<void> => {
                             "numero_sucursal INTEGER NOT NULL DEFAULT ''," +
                             "enviado BOOLEAN NOT NULL DEFAULT false," +
                             "pictureURL VARCHAR(200) NOT NULL DEFAULT ''," +
-                            "pictureBuffer BLOB NOT NULL DEFAULT ''," +
+                            // "pictureBuffer BLOB NOT NULL DEFAULT ''," +
                             "UNIQUE(time, employeeNoString));";
 
     db.run(createTableQuery, ( err: any ) => {
@@ -191,8 +191,12 @@ export const insertDataOnDB = async ( event: DatabaseEventData ): Promise<number
   return new Promise( async ( resolve, reject ) => {
     let db = new sqlite3.Database('./db/events.db');
     const sql = `INSERT INTO events(major, minor, time, cardType, name, cardReaderNo, doorNo, employeeNoString, ` +
-      `type, serialNo, userType, currentVerifyMode, mask, numero_empresa, numero_sucursal, enviado, pictureURL, pictureBuffer) ` +
-      `VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+   // `type, serialNo, userType, currentVerifyMode, mask, numero_empresa, numero_sucursal, enviado, pictureURL, pictureBuffer) ` +
+      `type, serialNo, userType, currentVerifyMode, mask, numero_empresa, numero_sucursal, enviado, pictureURL) ` +
+   // `VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      `VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      // Si se desea volver a grabar el Buffer en la DB, usar las lineas comentadas.
 
     const values = [
       event.major,
@@ -212,7 +216,7 @@ export const insertDataOnDB = async ( event: DatabaseEventData ): Promise<number
       event.numero_sucursal,
       event.enviado,
       event.pictureURL,
-      event.pictureBuffer
+      // event.pictureBuffer
     ];
 
     await db.run(sql, values, function(err: any) {
