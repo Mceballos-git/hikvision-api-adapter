@@ -177,18 +177,18 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
 
       let base64String = '';
       await sharp( arrayBuffer )
-        .resize({ width: 100 })
+        .resize({ width: 200 })
         .jpeg({
-          quality: 50
+          quality: 60
         })
         .toBuffer()
         .then( (data: Buffer) => {
           // 100 pixels wide, auto-scaled height
 
-        // const randomNumber = Math.floor(Math.random() * 250);;
-        // const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
-        // fs.writeFileSync( outputPath + randomNumber +'.jpg', data );
-        // console.log(`Imagen descargada y guardada en ${outputPath}`);
+        const randomNumber = Math.floor(Math.random() * 250);;
+        const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
+        fs.writeFileSync( outputPath + randomNumber +'.jpg', data );
+        console.log(`Imagen descargada y guardada en ${outputPath}`);
         
         base64String = btoa(String.fromCharCode(...new Uint8Array(data)));
       });

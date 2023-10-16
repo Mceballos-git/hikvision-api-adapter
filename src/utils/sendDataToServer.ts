@@ -40,14 +40,18 @@ export const sendDataToServer = async (): Promise<void> => {
             imagen: pictureData!
           };
 
+          //console.log(eventToSend);
+
           // Agrego el evento al array
           dataToSend.push( eventToSend );
         };
         // Envio un solo array con toda la informacion
         const response: CheckpointResponse = await axios.post( checkpointURL, dataToSend );
+        console.log(response);
 
         // Checkeo que venga el array "items" en la respuesta
         if ( !response.items ) {
+          console.log(dataToSend);
           reject( saveYellowInLogFile( 'Error al procesar los registros en Checkpoint' ) );
         };
 

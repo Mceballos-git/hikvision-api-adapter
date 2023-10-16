@@ -20,6 +20,7 @@ const tareaCron = cron.schedule( TIMER_ACCESO_DISPOSITIVO , async () => {
 }, { scheduled: true });
 
 // Inicia la tarea
+console.log('Inicio del proceso');
 tareaCron.start();
 
 // Manejo de errores no capturados

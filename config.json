@@ -1,8 +1,8 @@
 {
   "TIMER_ACCESO_DISPOSITIVO": "*/60 * * * * *",
-  "DEVICE_1_IP_ADDRESS": "http://192.168.65.96/",
+  "DEVICE_1_IP_ADDRESS": "http://192.168.127.96/",
   "DEVICE_1_URI": "/ISAPI/AccessControl/AcsEvent?format=json",
-  "DEVICE_1_URL": "http://192.168.65.96/ISAPI/AccessControl/AcsEvent?format=json",
+  "DEVICE_1_URL": "http://192.168.127.96/ISAPI/AccessControl/AcsEvent?format=json",
   "DEVICE_1_ADMIN_USERNAME": "admin",
   "DEVICE_1_ADMIN_PASSWORD": "Docta2023",
   "NUMERO_EMPRESA": "100",
