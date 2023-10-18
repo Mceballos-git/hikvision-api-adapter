@@ -34,7 +34,7 @@ export const getDataFromDevice = async ({
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
+    saveGreenInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -128,7 +128,7 @@ export const getBase64ImageFromUrl = async ( url: string, serialNo: number ): Pr
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
+    saveGreenInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
@@ -233,7 +233,7 @@ export const getImageBufferFromUrl = async ( url: string ): Promise<Buffer | und
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( new Date().toLocaleString() + ' - No hay comunicación con el dispositivo. Verifique IP' );
+    saveGreenInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
     return;
   }
 
