@@ -25,9 +25,11 @@ export const sendDataToServer = async (): Promise<void> => {
 
       if ( unsubmittedRecords.length > 0 ) {
 
+        saveGreenInLogFile("Convirtiendo imagenes a base64...");
+
         for await ( const event of unsubmittedRecords ) {
            
-          const pictureData: string | undefined = await getBase64ImageFromUrl( event.pictureURL );
+          const pictureData: string | undefined = await getBase64ImageFromUrl( event.pictureURL, event.serialNo);
 
           let eventToSend: CheckpointEventData = {
             id: event.serialNo,
@@ -46,24 +48,29 @@ export const sendDataToServer = async (): Promise<void> => {
           dataToSend.push( eventToSend );
         };
         // Envio un solo array con toda la informacion
+        saveGreenInLogFile("Enviando registros a Checkpoint...");
         const response: CheckpointResponse = await axios.post( checkpointURL, dataToSend );
-        console.log(response);
+        // console.log("Soy el RESPONSE", response.data);
 
         // Checkeo que venga el array "items" en la respuesta
-        if ( !response.items ) {
-          console.log(dataToSend);
+        if ( !response.data.items ) {
+          // console.log(dataToSend);
           reject( saveYellowInLogFile( 'Error al procesar los registros en Checkpoint' ) );
         };
 
-        for ( const item of response.items ) {
+        saveGreenInLogFile("Procesando respuesta de checkpoint...");
+        for ( const item of response.data.items ) {
           // Recorro la respuesta, todo item que traiga ID != 0, se graba como enviado
-          if ( item.last_id != 0 ) await markRecordAsSent( item.last_id );
+          if ( item.last_id != 0 ) await markRecordAsSent( item.id );
         };
+        saveGreenInLogFile("Registros actualizados OK");
+
 
         // Calculo cuantos registros OK hay en la respuesta del server
-        const dataSendOk: Item[] = response.items.filter( (item) => item.last_id != 0 ); 
+        const dataSendOk: Item[] = response.data.items.filter( (item:Item) => item.last_id != 0 ); 
 
-        resolve( saveGreenInLogFile(`${dataToSend.length} registros enviados -- ${dataSendOk.length} registros recibidos` ));
+        saveGreenInLogFile(`${dataToSend.length} registros enviados -- ${dataSendOk.length} registros recibidos` );
+        resolve();
       } else {
         resolve( saveGreenInLogFile(`Sin registros nuevos para enviar` ));
       }

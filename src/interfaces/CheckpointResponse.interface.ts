@@ -1,5 +1,5 @@
 export interface CheckpointResponse {
-    items: Item[];
+    data: any 
 }
 
 export interface Item {
