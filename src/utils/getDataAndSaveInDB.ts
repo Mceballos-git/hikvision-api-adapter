@@ -1,11 +1,16 @@
 import { DeviceData, DeviceEventData } from "../interfaces/DeviceData.interface";
 import { DatabaseEventData } from "../interfaces/DatabaseEventData.interface";
 import { LastEventNumber, getLastEventfromDBBySerialNo, insertDataOnDB } from "./dbUtils";
-import { getDataFromDevice, getImageBufferFromUrl } from "./digestAuthHandler";
+import { getBase64ImageFromUrl, getDataFromDevice, getImageArrayBufferFromUrl, getImageBufferFromUrl } from "./digestAuthHandler";
 import { saveYellowInLogFile } from "./saveInLogFile";
-import { NUMERO_EMPRESA, NUMERO_SUCURSAL } from '../../config.json'
+import { NUMERO_EMPRESA, NUMERO_SUCURSAL, DEVICE_1_URL } from '../../config.json'
+import { saveImageOnDisk } from "./saveImageOnDisk";
+const sharp = require('sharp');
 
- 
+
+
+const url      = DEVICE_1_URL;
+
 export const getDataAndSaveInDB = async() => {
 
   try {
@@ -66,6 +71,17 @@ export const getDataAndSaveInDB = async() => {
           }
 
           await insertDataOnDB(newEvent);
+
+          const buffer = await getImageArrayBufferFromUrl( event.pictureURL );
+          const resizedBuffer = await sharp( buffer )
+          .resize({ width: 200 })
+          .jpeg({
+            quality: 60
+          })
+          .toBuffer();
+
+          saveImageOnDisk(event.serialNo, resizedBuffer);
+
         } catch (error) {
           saveYellowInLogFile( `Error al obtener la imagen` + error);
         }

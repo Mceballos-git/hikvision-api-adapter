@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
 import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD } from '../../config.json';
+import { saveImageOnDisk } from "./saveImageOnDisk";
 const fs = require('fs');
 const sharp = require('sharp');
 
@@ -203,9 +204,8 @@ export const getBase64ImageFromUrl = async ( url: string, serialNo: number ): Pr
           })
           .toBuffer();
 
-          const outputPath = "./images/imagen"; // Ruta donde deseas guardar el archivo
-          fs.writeFileSync( outputPath + serialNo +'.jpg', buffer );
-          console.log(`Imagen descargada y guardada en ${outputPath} ${serialNo}`);
+          // saveImageOnDisk( serialNo, buffer )
+
           return base64String = btoa(String.fromCharCode(...new Uint8Array(buffer))); 
         } catch (error) {
           return base64String;
@@ -282,6 +282,73 @@ export const getImageBufferFromUrl = async ( url: string ): Promise<Buffer | und
       const buffer = Buffer.from(arrayBuffer);
 
       return buffer;
+      
+    } catch (error) {
+      saveYellowInLogFile( `Error al generar el Buffer de la imagen: ` + error );
+    }
+  } else {
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
+  }
+}
+
+export const getImageArrayBufferFromUrl = async ( url: string ): Promise<ArrayBuffer | undefined> => {
+  let customHeaders = '';
+  // Paso 1: Realiza una solicitud GET para obtener los parámetros de autenticación digest
+  try {
+    const response = await axios.get( url );
+  } catch ( error: any ) {
+    customHeaders = error.response?.headers['www-authenticate']; 
+  }
+
+  // if ( customHeaders === undefined ) {
+  //   saveGreenInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
+  //   return;
+  // }
+
+  const authHeader = customHeaders ;
+  const realmMatch = authHeader.match(/realm="([^"]+)"/);
+  const nonceMatch = authHeader.match(/nonce="([^"]+)"/);
+
+  if ( realmMatch && nonceMatch ) {
+    const realm = realmMatch[1];
+    const nonce = nonceMatch[1];
+
+    // Paso 2: Calcula el hash MD5 del username, realm y password
+    const ha1 = crypto.createHash('md5')
+      .update(`${username}:${realm}:${password}`)
+      .digest('hex');
+
+    // Paso 3: Genera un nonce contador (nc)
+    const nc = '00000001';
+
+    // Paso 4: Genera un valor cnonce
+    const cnonce = crypto.randomBytes(16).toString('hex');
+
+    // Paso 5: Calcula el hash MD5 del método HTTP y la URL
+    const httpMethod = 'GET';
+    const ha2 = crypto.createHash('md5')
+      .update(`${httpMethod}:${uri}`)
+      .digest('hex');
+
+    // Paso 6: Calcula el hash MD5 de ha1, nonce, nc, cnonce, qop y ha2
+    const qop = 'auth';
+    const response = crypto.createHash('md5')
+      .update(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
+      .digest('hex');
+
+    // Paso 7: Construye el encabezado de autenticación digest
+    const authHeaderDigest = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", qop=${qop}, nc=${nc}, cnonce="${cnonce}", response="${response}"`;
+
+    // Paso 8: Realiza la solicitud real con el encabezado de autenticación digest
+    try {
+      const headers = new Headers({
+          'Authorization': authHeaderDigest
+        });
+
+      const response = await fetch(url, { headers: headers });
+      const arrayBuffer = await response.arrayBuffer();
+
+      return arrayBuffer;
       
     } catch (error) {
       saveYellowInLogFile( `Error al generar el Buffer de la imagen: ` + error );
