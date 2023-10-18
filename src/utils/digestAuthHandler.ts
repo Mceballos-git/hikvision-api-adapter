@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
 import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD } from '../../config.json';
+import { buffer } from "stream/consumers";
 const fs = require('fs');
 const sharp = require('sharp');
 
@@ -118,7 +119,7 @@ export const getDataFromDevice = async ({
 }
 
 
-export const getBase64ImageFromUrl = async ( url: string ): Promise<string | undefined> => {
+export const getBase64ImageFromUrl = async ( url: string, serialNo:number ): Promise<string | undefined> => {
   let customHeaders = '';
   // Paso 1: Realiza una solicitud GET para obtener los parámetros de autenticación digest
   try {
@@ -173,25 +174,42 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
         });
 
       const response = await fetch(url, { headers: headers });
-      const arrayBuffer = await response.arrayBuffer();
+      const arrayBuffer = await response.arrayBuffer();        
+
+      ////**** SE CAMBIO ESTO PARA NO USAR .then() YA QUE ES ASINCONO */
+      // await sharp( arrayBuffer )
+      //   .resize({ width: 200 })
+      //   .jpeg({
+      //     quality: 60
+      //   })
+      //   .toBuffer()
+      //   .then( (data: Buffer) => {
+      //     // 100 pixels wide, auto-scaled height
+
+      //   // const randomNumber = Math.floor(Math.random() * 250);
+      //   const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
+      //   fs.writeFileSync( outputPath + serialNo +'.jpg', data );
+      //   console.log(`Imagen descargada y guardada en ${outputPath} ${serialNo}`);
+      //   base64String = btoa(String.fromCharCode(...new Uint8Array(data)));
+      // });
 
       let base64String = '';
-      await sharp( arrayBuffer )
+      //verifico que la imagen no esté rota para poder guardar en disco y generar base64
+      if(arrayBuffer.byteLength > 0){
+        const buffer:Buffer = await sharp( arrayBuffer )
         .resize({ width: 200 })
         .jpeg({
           quality: 60
         })
-        .toBuffer()
-        .then( (data: Buffer) => {
-          // 100 pixels wide, auto-scaled height
+        .toBuffer();
 
-        const randomNumber = Math.floor(Math.random() * 250);;
+        console.log('buffer', buffer);
+
         const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
-        fs.writeFileSync( outputPath + randomNumber +'.jpg', data );
-        console.log(`Imagen descargada y guardada en ${outputPath}`);
-        
-        base64String = btoa(String.fromCharCode(...new Uint8Array(data)));
-      });
+        fs.writeFileSync( outputPath + serialNo +'.jpg', buffer );
+        console.log(`Imagen descargada y guardada en ${outputPath} ${serialNo}`);
+        base64String = btoa(String.fromCharCode(...new Uint8Array(buffer))); 
+      }
 
       return base64String;
       
