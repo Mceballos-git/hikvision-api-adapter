@@ -1,5 +1,5 @@
 {
-  "TIMER_ACCESO_DISPOSITIVO": "*/60 * * * * *",
+  "TIMER_ACCESO_DISPOSITIVO": "*/30 * * * * *",
   "DEVICE_1_IP_ADDRESS": "http://192.168.0.127/",
   "DEVICE_1_URI": "/ISAPI/AccessControl/AcsEvent?format=json",
   "DEVICE_1_URL": "http://192.168.0.127/ISAPI/AccessControl/AcsEvent?format=json",
