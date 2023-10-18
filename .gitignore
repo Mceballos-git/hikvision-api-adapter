@@ -1,5 +1,5 @@
-/db/events.db
+/db
 /dist
-/logs/log.txt
+/images
+/logs
 /node_modules
-/src/images

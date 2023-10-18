@@ -3,7 +3,6 @@ import crypto from "crypto";
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
 import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD } from '../../config.json';
-import { buffer } from "stream/consumers";
 const fs = require('fs');
 const sharp = require('sharp');
 
@@ -119,7 +118,7 @@ export const getDataFromDevice = async ({
 }
 
 
-export const getBase64ImageFromUrl = async ( url: string, serialNo:number ): Promise<string | undefined> => {
+export const getBase64ImageFromUrl = async ( url: string, serialNo: number ): Promise<string | undefined> => {
   let customHeaders = '';
   // Paso 1: Realiza una solicitud GET para obtener los parámetros de autenticación digest
   try {
@@ -168,11 +167,11 @@ export const getBase64ImageFromUrl = async ( url: string, serialNo:number ): Pro
     const authHeaderDigest = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", qop=${qop}, nc=${nc}, cnonce="${cnonce}", response="${response}"`;
 
     // Paso 8: Realiza la solicitud real con el encabezado de autenticación digest
-    try {
       const headers = new Headers({
           'Authorization': authHeaderDigest
         });
 
+    try {
       const response = await fetch(url, { headers: headers });
       const arrayBuffer = await response.arrayBuffer();        
 
@@ -193,22 +192,24 @@ export const getBase64ImageFromUrl = async ( url: string, serialNo:number ): Pro
       //   base64String = btoa(String.fromCharCode(...new Uint8Array(data)));
       // });
 
-      let base64String = '';
+      let base64String = "";
       //verifico que la imagen no esté rota para poder guardar en disco y generar base64
-      if(arrayBuffer.byteLength > 0){
-        const buffer:Buffer = await sharp( arrayBuffer )
-        .resize({ width: 200 })
-        .jpeg({
-          quality: 60
-        })
-        .toBuffer();
+      if ( arrayBuffer.byteLength > 0 ) {
+        try {
+          const buffer:Buffer = await sharp( arrayBuffer )
+          .resize({ width: 200 })
+          .jpeg({
+            quality: 60
+          })
+          .toBuffer();
 
-        console.log('buffer', buffer);
-
-        const outputPath = "src/images/imagen"; // Ruta donde deseas guardar el archivo
-        fs.writeFileSync( outputPath + serialNo +'.jpg', buffer );
-        console.log(`Imagen descargada y guardada en ${outputPath} ${serialNo}`);
-        base64String = btoa(String.fromCharCode(...new Uint8Array(buffer))); 
+          const outputPath = "./images/imagen"; // Ruta donde deseas guardar el archivo
+          fs.writeFileSync( outputPath + serialNo +'.jpg', buffer );
+          console.log(`Imagen descargada y guardada en ${outputPath} ${serialNo}`);
+          return base64String = btoa(String.fromCharCode(...new Uint8Array(buffer))); 
+        } catch (error) {
+          return base64String;
+        }
       }
 
       return base64String;
@@ -217,7 +218,7 @@ export const getBase64ImageFromUrl = async ( url: string, serialNo:number ): Pro
       saveYellowInLogFile( `Error al generar imagen en Base64: ` + error );
     }
   } else {
-    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
+    saveYellowInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
   }
 }
 

@@ -3,19 +3,21 @@ import { initDB } from "./utils/dbUtils";
 import { getDataAndSaveInDB } from "./utils/getDataAndSaveInDB";
 import { sendDataToServer } from "./utils/sendDataToServer";
 import { TIMER_ACCESO_DISPOSITIVO } from '../config.json'
+import { saveYellowInLogFile } from "./utils/saveInLogFile";
+import { createAppFolders } from "./utils/createDirectorySynchronously";
 var cron = require('node-cron');
 
 // Programa la tarea para ejecutarse cada un minuto
 const tareaCron = cron.schedule( TIMER_ACCESO_DISPOSITIVO , async () => {
   try {
-
+    createAppFolders();
     await initDB();             // Creo la DB si no existe
     await getDataAndSaveInDB(); // Lectura de datos del dispositivo y los grabo en DB
     await sendDataToServer();   // Envio data al servidor
     await backupLargeFiles();   // Realizo backup del LOG y de la DB cuando superan los valores configurados
 
   } catch (error) {
-    console.error('Error en cron job:', error);
+    saveYellowInLogFile( 'Error en cron job: ' + error)
   }
 }, { scheduled: true });
 
@@ -25,13 +27,13 @@ tareaCron.start();
 
 // Manejo de errores no capturados
 process.on('uncaughtException', (err) => {
-  console.error('Error no capturado:', err);
+  saveYellowInLogFile('Error no capturado:' + err);
   // Vuelve a iniciar la tarea después de un error
   tareaCron.start();
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Rechazo no manejado:', reason);
+  saveYellowInLogFile('Rechazo no manejado:' + reason);
   // Vuelve a iniciar la tarea después de un error de rechazo
   tareaCron.start();
 });

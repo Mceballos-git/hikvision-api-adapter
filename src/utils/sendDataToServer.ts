@@ -29,7 +29,7 @@ export const sendDataToServer = async (): Promise<void> => {
 
         for await ( const event of unsubmittedRecords ) {
            
-          const pictureData: string | undefined = await getBase64ImageFromUrl( event.pictureURL, event.serialNo);
+          const pictureData: string | undefined = await getBase64ImageFromUrl( event.pictureURL, event.serialNo );
 
           let eventToSend: CheckpointEventData = {
             id: event.serialNo,
