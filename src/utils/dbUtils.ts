@@ -223,7 +223,7 @@ export const insertDataOnDB = async ( event: DatabaseEventData ): Promise<number
         saveYellowInLogFile( `Error al grabar el evento: serialNo ${ event.serialNo }` );
         reject( err )
       } else {
-        saveInLogFile( `Evento grabado correctamente: serialNo ${ event.serialNo }` );
+        saveInLogFile( `Evento grabado correctamente en DB: serialNo ${ event.serialNo }` );
         resolve( event.serialNo );
       }
       dbClose();
