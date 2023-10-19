@@ -1,9 +1,9 @@
 import { DeviceData, DeviceEventData } from "../interfaces/DeviceData.interface";
 import { DatabaseEventData } from "../interfaces/DatabaseEventData.interface";
 import { LastEventNumber, getLastEventfromDBBySerialNo, insertDataOnDB } from "./dbUtils";
-import { getBase64ImageFromUrl, getDataFromDevice, getImageArrayBufferFromUrl, getImageBufferFromUrl } from "./digestAuthHandler";
+import { getDataFromDevice, getImageArrayBufferFromUrl } from "./digestAuthHandler";
 import { saveYellowInLogFile } from "./saveInLogFile";
-import { NUMERO_EMPRESA, NUMERO_SUCURSAL, DEVICE_1_URL } from '../../config.json'
+import { NUMERO_EMPRESA, NUMERO_SUCURSAL, DEVICE_1_URL, GRABAR_IMAGENES_LOCAL } from '../../config.json'
 import { saveImageOnDisk } from "./saveImageOnDisk";
 const sharp = require('sharp');
 
@@ -28,7 +28,7 @@ export const getDataAndSaveInDB = async() => {
     // };
 
     // Realizo la llamada al dispositivo 
-    // Buscando eventos con ID mas alto que el de la DB
+    // Buscando eventos con ID mas alto que el ultimo de la DB
     const deviceData: DeviceData | undefined = await getDataFromDevice({
       searchResultPosition: 0,
       maxResults: 30,
@@ -45,45 +45,48 @@ export const getDataAndSaveInDB = async() => {
       eventDataArray = deviceData?.AcsEvent.InfoList;
 
       for ( const event of eventDataArray ) {
-        try {
-
           // const pictureBuffer: Buffer | undefined = await getImageBufferFromUrl( event.pictureURL )
-
-          let newEvent: DatabaseEventData = {
-            major: event.major,
-            minor: event.minor,
-            time: event.time,
-            cardType: event.cardType,
-            name: event.name,
-            cardReaderNo: event.cardReaderNo,
-            doorNo: event.doorNo,
-            employeeNoString: event.employeeNoString,
-            type: event.type,
-            serialNo: event.serialNo,
-            userType: event.userType,
-            currentVerifyMode: event.currentVerifyMode,
-            mask: event.mask,
-            numero_empresa:  parseInt(NUMERO_EMPRESA!),
-            numero_sucursal: parseInt(NUMERO_SUCURSAL!),
-            enviado: false,
-            pictureURL: event.pictureURL,
-            // pictureBuffer: pictureBuffer!
-          }
-
+          
+        let newEvent: DatabaseEventData = {
+          major: event.major,
+          minor: event.minor,
+          time: event.time,
+          cardType: event.cardType,
+          name: event.name,
+          cardReaderNo: event.cardReaderNo,
+          doorNo: event.doorNo,
+          employeeNoString: event.employeeNoString,
+          type: event.type,
+          serialNo: event.serialNo,
+          userType: event.userType,
+          currentVerifyMode: event.currentVerifyMode,
+          mask: event.mask,
+          numero_empresa:  parseInt(NUMERO_EMPRESA!),
+          numero_sucursal: parseInt(NUMERO_SUCURSAL!),
+          enviado: false,
+          pictureURL: event.pictureURL,
+          // pictureBuffer: pictureBuffer!
+        }
+        try {
           await insertDataOnDB(newEvent);
-
-          const buffer = await getImageArrayBufferFromUrl( event.pictureURL );
-          const resizedBuffer = await sharp( buffer )
-          .resize({ width: 200 })
-          .jpeg({
-            quality: 60
-          })
-          .toBuffer();
-
-          saveImageOnDisk(event.serialNo, resizedBuffer);
-
         } catch (error) {
-          saveYellowInLogFile( `Error al obtener la imagen` + error);
+          saveYellowInLogFile(`Error al insertar registro serialNo:${event.serialNo} en DB`)            
+        }
+
+        try {
+          const buffer = await getImageArrayBufferFromUrl( event.pictureURL );
+          if ( buffer!.byteLength > 0 ) {
+            const resizedBuffer = await sharp( buffer )
+            .resize({ width: 200 })
+            .jpeg({
+              quality: 60
+            })
+            .toBuffer();
+
+            if ( GRABAR_IMAGENES_LOCAL === "S" ) saveImageOnDisk( event.serialNo, resizedBuffer );
+          }
+        } catch (error) {
+          saveYellowInLogFile( `Error al procesar la imagen` + error );
         }
       }
     }
