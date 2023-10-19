@@ -9,7 +9,8 @@
   "NUMERO_SUCURSAL": "1",
   "BACKUP_LOG_IN_MEGABYTES": "1",
   "BACKUP_DB_ON_RECORDS_QUANTITY": "150000",
-  "CHECKPOINT_SERVER_URL": "https://block.net.ar/asistencia/apinet/movvision.php"
+  "CHECKPOINT_SERVER_URL": "https://block.net.ar/asistencia/apinet/movvision.php",
+  "GRABAR_IMAGENES_LOCAL": "N"
 }
 
 
