@@ -14,8 +14,6 @@ Modelo: DS-K1T343MWX
 - Se utilizó NodeJS 18.13.0 con Typescript 5.2.2.
 - Se utilizó SQLite 5.1.6 como base de datos relacional para el proyecto.
 - En la raiz se encuentra el archivo "config.json" con todas las configuraciones necesarias.
-- En la DB local, se graban las imagenes en formato Buffer para poder visualizarlas desde cualquier editor de bases de datos.
-
 ---
 
 ### Instalaciones necesarias
@@ -48,11 +46,8 @@ Este comando crea la version de producción del proyecto dentro de la carpeta {i
 ```
 ncc build src/index.ts
 ```
-7. Copiar dentro de la carpeta "dist", el directorio "db" y "logs".
-
-8. Ingresar al directorio "dist" y poner a correr la aplicacion con el siguiente comando:
+7. Ingresar al directorio "dist" y poner a correr la aplicacion con el siguiente comando:
 ```
 node index.js
 ```
- Listo, la carpeta "dist" contiene todo lo necesario para ser implementada en la pc del cliente.
 
