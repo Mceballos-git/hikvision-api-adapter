@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { CHECKPOINT_SERVER_URL, NUMERO_EMPRESA, NUMERO_SUCURSAL } from '../../config.json'
+import { CHECKPOINT_SERVER_URL, NUMERO_EMPRESA, NUMERO_SUCURSAL} from '../../config.json'
 import { CheckpointEventData } from '../interfaces/CheckpointEventData.interface';
 import { cleanTimeZoneFromFullDate, extractDateFromFullDate, extractTimeFromFullDate } from "./formatDate";
 import { DatabaseEventData } from "../interfaces/DatabaseEventData.interface";
@@ -29,7 +29,7 @@ export const sendDataToServer = async (): Promise<void> => {
 
         for await ( const event of unsubmittedRecords ) {
            
-          const pictureData: string | undefined = await getBase64ImageFromUrl( event.pictureURL, event.serialNo );
+          const pictureData: string | undefined = await getBase64ImageFromUrl( event.pictureURL);
 
           let eventToSend: CheckpointEventData = {
             id: event.serialNo,

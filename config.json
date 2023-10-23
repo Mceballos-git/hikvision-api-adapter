@@ -1,8 +1,8 @@
 {
   "TIMER_ACCESO_DISPOSITIVO": "*/60 * * * * *",
-  "DEVICE_1_IP_ADDRESS": "http://192.168.0.127/",
+  "DEVICE_1_IP_ADDRESS": "http://192.168.2.7/",
   "DEVICE_1_URI": "/ISAPI/AccessControl/AcsEvent?format=json",
-  "DEVICE_1_URL": "http://192.168.0.127/ISAPI/AccessControl/AcsEvent?format=json",
+  "DEVICE_1_URL": "http://192.168.2.7/ISAPI/AccessControl/AcsEvent?format=json",
   "DEVICE_1_ADMIN_USERNAME": "admin",
   "DEVICE_1_ADMIN_PASSWORD": "Docta2023",
   "NUMERO_EMPRESA": "100",
@@ -10,7 +10,7 @@
   "BACKUP_LOG_IN_MEGABYTES": "1",
   "BACKUP_DB_ON_RECORDS_QUANTITY": "150000",
   "CHECKPOINT_SERVER_URL": "https://block.net.ar/asistencia/apinet/movvision.php",
-  "GRABAR_IMAGENES_LOCAL": "N"
+  "GRABAR_IMAGENES_LOCAL": "S"
 }
 
 

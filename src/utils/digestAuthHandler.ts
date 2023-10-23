@@ -2,7 +2,7 @@ import axios from "axios";
 import crypto from "crypto";
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
-import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD } from '../../config.json';
+import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD, DEVICE_1_IP_ADDRESS } from '../../config.json';
 import { saveImageOnDisk } from "./saveImageOnDisk";
 const fs = require('fs');
 const sharp = require('sharp');
@@ -119,17 +119,33 @@ export const getDataFromDevice = async ({
 }
 
 
-export const getBase64ImageFromUrl = async ( url: string, serialNo: number ): Promise<string | undefined> => {
+export const getBase64ImageFromUrl = async ( url: string ): Promise<string | undefined> => {
+  
+
+  //arreglo url que viene de la DB para que tome la IP "actual" el lector, por las dudas haya cambiado
+  let vector = url.split("/");
+  let carpetas_url = "";
+  for (let i = 3; i < vector.length; i++) {
+    
+    carpetas_url+=vector[i] + "/";
+  }
+  const ult_barra = carpetas_url.lastIndexOf("/");
+  //quito la ultima barra
+  const url1 = carpetas_url.substring(0, ult_barra );
+  const url_arreglada = DEVICE_1_IP_ADDRESS + url1;
+  console.log(`Accediendo a ${url_arreglada}`);
+
+
   let customHeaders = '';
   // Paso 1: Realiza una solicitud GET para obtener los parámetros de autenticación digest
   try {
-    const response = await axios.get( url );
+    const response = await axios.get( url_arreglada );
   } catch ( error: any ) {
     customHeaders = error.response?.headers['www-authenticate']; 
   }
 
   if ( customHeaders === undefined ) {
-    saveGreenInLogFile( 'No hay comunicación con el dispositivo. Verifique IP' );
+    saveGreenInLogFile( 'Error al acceder a imagen del dispositivo. Verifique IP' );
     return;
   }
 
@@ -173,7 +189,7 @@ export const getBase64ImageFromUrl = async ( url: string, serialNo: number ): Pr
         });
 
     try {
-      const response = await fetch(url, { headers: headers });
+      const response = await fetch(url_arreglada, { headers: headers });
       const arrayBuffer = await response.arrayBuffer();        
 
       ////**** SE CAMBIO ESTO PARA NO USAR .then() YA QUE ES ASINCONO */
