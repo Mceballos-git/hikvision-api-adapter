@@ -133,7 +133,7 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
   //quito la ultima barra
   const url1 = carpetas_url.substring(0, ult_barra );
   const url_arreglada = DEVICE_1_IP_ADDRESS + url1;
-  console.log(`Accediendo a ${url_arreglada}`);
+  //console.log(`Accediendo a ${url_arreglada}`);
 
 
   let customHeaders = '';
@@ -214,9 +214,9 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
       if ( arrayBuffer.byteLength > 0 ) {
         try {
           const buffer:Buffer = await sharp( arrayBuffer )
-          .resize({ width: 200 })
+          .resize({ width: 500 })
           .jpeg({
-            quality: 60
+            quality: 80
           })
           .toBuffer();
 
