@@ -133,7 +133,7 @@ export const getBase64ImageFromUrl = async ( url: string ): Promise<string | und
   //quito la ultima barra
   const url1 = carpetas_url.substring(0, ult_barra );
   const url_arreglada = DEVICE_1_IP_ADDRESS + url1;
-  //console.log(`Accediendo a ${url_arreglada}`);
+  // console.log(`Accediendo a ${url_arreglada}`);
 
 
   let customHeaders = '';

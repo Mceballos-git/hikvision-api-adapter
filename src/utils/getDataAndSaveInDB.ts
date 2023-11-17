@@ -5,6 +5,7 @@ import { getDataFromDevice, getImageArrayBufferFromUrl } from "./digestAuthHandl
 import { saveYellowInLogFile } from "./saveInLogFile";
 import { NUMERO_EMPRESA, NUMERO_SUCURSAL, DEVICE_1_URL, GRABAR_IMAGENES_LOCAL } from '../../config.json'
 import { saveImageOnDisk } from "./saveImageOnDisk";
+import { CLIENT_RENEG_LIMIT } from "tls";
 const sharp = require('sharp');
 
 
@@ -67,23 +68,28 @@ export const getDataAndSaveInDB = async() => {
           pictureURL: event.pictureURL,
           // pictureBuffer: pictureBuffer!
         }
+
         try {
           await insertDataOnDB(newEvent);
         } catch (error) {
+          console.log( error );
           saveYellowInLogFile(`Error al insertar registro serialNo:${event.serialNo} en DB`)            
         }
 
         try {
-          const buffer = await getImageArrayBufferFromUrl( event.pictureURL );
-          if ( buffer!.byteLength > 0 ) {
-            const resizedBuffer = await sharp( buffer )
-            .resize({ width: 200 })
-            .jpeg({
-              quality: 60
-            })
-            .toBuffer();
+          if ( GRABAR_IMAGENES_LOCAL === "S" && event.pictureURL !== undefined ) {
+            const buffer = await getImageArrayBufferFromUrl( event.pictureURL );
+            if ( buffer!.byteLength > 0 ) {
+              const resizedBuffer = await sharp( buffer )
+              .resize({ width: 200 })
+              .jpeg({
+                quality: 60
+              })
+              .toBuffer();
 
-            if ( GRABAR_IMAGENES_LOCAL === "S" ) saveImageOnDisk( event.serialNo, resizedBuffer );
+              saveImageOnDisk( event.serialNo, resizedBuffer );
+          }
+
           }
         } catch (error) {
           saveYellowInLogFile( `Error al procesar la imagen` + error );

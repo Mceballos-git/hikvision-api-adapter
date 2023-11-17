@@ -28,9 +28,12 @@ export const sendDataToServer = async (): Promise<void> => {
         saveGreenInLogFile("Convirtiendo imagenes a base64...");
 
         for await ( const event of unsubmittedRecords ) {
+          let pictureData: string | undefined = '';
+          
+          if ( event.pictureURL ) {
+            pictureData = await getBase64ImageFromUrl( event.pictureURL );
+          } 
            
-          const pictureData: string | undefined = await getBase64ImageFromUrl( event.pictureURL);
-
           let eventToSend: CheckpointEventData = {
             id: event.serialNo,
             empleado: parseInt(event.employeeNoString),

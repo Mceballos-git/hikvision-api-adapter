@@ -214,13 +214,16 @@ export const insertDataOnDB = async ( event: DatabaseEventData ): Promise<number
       event.numero_empresa,
       event.numero_sucursal,
       event.enviado,
-      event.pictureURL,
+      event.pictureURL ? event.pictureURL : '',
       // event.pictureBuffer
     ];
 
     await db.run(sql, values, function(err: any) {
       if ( err ) {
         saveYellowInLogFile( `Error al grabar el evento: serialNo ${ event.serialNo }` );
+        saveYellowInLogFile( `Error al grabar el evento: serialNo ${ values }` );
+        console.log(err);
+        
         reject( err )
       } else {
         saveInLogFile( `Evento grabado correctamente en DB: serialNo ${ event.serialNo }` );
