@@ -16,7 +16,9 @@ export const createAppFolders = async () => {
   try {
     createDirectorySynchronously('./images/');
     createDirectorySynchronously('./db/');
+    createDirectorySynchronously('./db/backups/');
     createDirectorySynchronously('./logs/');
+    createDirectorySynchronously('./logs/backups/');
   } catch (error) {
     saveYellowInLogFile('No se pudieron crear los directorios');
   }
