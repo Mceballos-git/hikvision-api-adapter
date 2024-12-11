@@ -7,6 +7,9 @@ import { saveYellowInLogFile } from "./utils/saveInLogFile";
 import { createAppFolders } from "./utils/createDirectorySynchronously";
 var cron = require('node-cron');
 
+//Docta2023
+//192.168.2.5
+
 // Programa la tarea para ejecutarse cada un minuto
 const tareaCron = cron.schedule( TIMER_ACCESO_DISPOSITIVO , async () => {
   try {
@@ -23,6 +26,13 @@ const tareaCron = cron.schedule( TIMER_ACCESO_DISPOSITIVO , async () => {
 
 // Inicia la tarea
 console.log('Inicio del proceso');
+const fecha = new Date();
+let fecha_hoy = new Date();
+let fecha_ant = new Date(fecha.setDate(fecha.getDate() - 7));
+
+console.log(fecha_hoy);
+console.log(fecha_ant);
+
 tareaCron.start();
 
 // Manejo de errores no capturados

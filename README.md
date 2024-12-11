@@ -20,7 +20,7 @@ Modelo: DS-K1T343MWX
 - [Debes tener GIT instalado](https://git-scm.com/)
 - [Debes tener Node/npm instalado](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [Debes tener @vercel/ncc instalado](https://www.npmjs.com/package/@vercel/ncc)<br>
-npm i -g @vercel/ncc
+npm i -g @vercel/ncc - para compilar y generar carpeta dist
 
 ---
 

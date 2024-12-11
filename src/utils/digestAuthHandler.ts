@@ -2,7 +2,7 @@ import axios from "axios";
 import crypto from "crypto";
 import { saveYellowInLogFile, saveGreenInLogFile} from "./saveInLogFile";
 import { DeviceData } from '../interfaces/DeviceData.interface';
-import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD, DEVICE_1_IP_ADDRESS } from '../../config.json';
+import { DEVICE_1_URL, DEVICE_1_URI, DEVICE_1_ADMIN_USERNAME, DEVICE_1_ADMIN_PASSWORD, DEVICE_1_IP_ADDRESS , MINOR} from '../../config.json';
 import { saveImageOnDisk } from "./saveImageOnDisk";
 const fs = require('fs');
 const sharp = require('sharp');
@@ -14,15 +14,17 @@ const uri      = DEVICE_1_URI;
 const username = DEVICE_1_ADMIN_USERNAME;
 const password = DEVICE_1_ADMIN_PASSWORD;
 
+// { 
+//   searchResultPosition = 0,
+//   maxResults = 30,
+//   // startTime = '',
+//   // endTime = ''
+//   beginSerialNo = 0,
+//   endSerialNo = 0
+// }
 
-export const getDataFromDevice = async ({ 
-      searchResultPosition = 0,
-      maxResults = 30,
-      // startTime = '',
-      // endTime = ''
-      beginSerialNo = 0,
-      endSerialNo = 0
-}): Promise<DeviceData | undefined> => {
+
+export const getDataFromDevice = async (): Promise<DeviceData | undefined> => {
 
   
   let customHeaders = '';
@@ -30,7 +32,7 @@ export const getDataFromDevice = async ({
   try {
     const response = await axios.get( url );
   } catch ( error: any ) {
-    // console.log( error );
+    //console.log( 'error al obtener param  auth',error );
     customHeaders = error.response?.headers['www-authenticate']; 
   }
 
@@ -72,8 +74,63 @@ export const getDataFromDevice = async ({
 
     // Paso 7: Construye el encabezado de autenticación digest
     const authHeaderDigest = `Digest username="${username}", realm="${realm}", nonce="${nonce}", uri="${uri}", qop=${qop}, nc=${nc}, cnonce="${cnonce}", response="${response}"`;
-
+    //console.log(authHeaderDigest);
+    //console.log(url);
+    
     // Paso 8: Realiza la solicitud real con el encabezado de autenticación digest
+
+    const fecha = new Date();
+    let fecha_hoy = new Date();
+    let fecha_ant = new Date(fecha.setDate(fecha.getDate() - 7));
+
+    const dia_ant = String(fecha_ant.getDate()).padStart(2, '0');
+    const mes_ant = String(fecha_ant.getMonth() + 1).padStart(2, '0');
+    const anio_ant = String(fecha_ant.getFullYear());
+    const fecha_ant_db = `${anio_ant}-${mes_ant}-${dia_ant}T00:00:01-03:00`;
+
+    const dia_hoy = String(fecha_hoy.getDate()).padStart(2, '0');
+    const mes_hoy = String(fecha_hoy.getMonth() + 1).padStart(2, '0');
+    const anio_hoy = String(fecha_hoy.getFullYear());
+    const fecha_hoy_db = `${anio_hoy}-${mes_hoy}-${dia_hoy}T23:59:58-03:00`;
+
+
+
+    let filtros = JSON.stringify({
+      "AcsEventCond": {
+        "major": 5,
+        "maxResults": 30,
+        //"minor": 75, FaceID
+        //"minor": 38, Huella
+        "minor": MINOR,
+        "searchID": "1",
+        "searchResultPosition": 0,
+        "startTime": fecha_ant_db,
+          "endTime": fecha_hoy_db,
+          "timeReverseOrder": true,
+        //"startTime": '2024-12-10T01:24:00-03:00',
+        //"endTime": '2024-12-12T00:23:52-03:00',
+        // "timeReverseOrder": true,;
+        //"beginSerialNo": 1, 
+        //"endSerialNo": 160
+      }});
+
+      console.log(filtros);
+      
+      
+      // const filtros1 = JSON.stringify({
+      //   "AcsEventCond": {
+      //     "searchID": "1",
+      //     "searchResultPosition": searchResultPosition,
+      //     "maxResults": maxResults,
+      //     //"startTime": '2024-12-11T00:24:00-03:00',
+      //     //"endTime": '2024-12-11T17:23:52-03:00',
+      //     "startTime": fecha_ant,
+      //     "endTime": fecha_hoy,
+      //     "beginSerialNo": 1, 
+      //     "endSerialNo": 500,
+      //     "major": 5,
+      //     "minor": 0,
+      //   }});
     try {
       const { data } = await axios({
         method: httpMethod,
@@ -83,20 +140,14 @@ export const getDataFromDevice = async ({
           'Content-Type': 'application/json',
           'Authorization': authHeaderDigest,
         },
-        data: JSON.stringify({
-          "AcsEventCond": {
-            "major": 5,
-            "maxResults": maxResults,
-            "minor": 75,
-            "searchID": "1",
-            "searchResultPosition": searchResultPosition,
-            // "startTime": startTime,
-            // "endTime": endTime,
-            // "timeReverseOrder": true,;
-            "beginSerialNo": beginSerialNo, 
-            "endSerialNo": endSerialNo
-          }})
+        data: filtros
       });
+      
+      
+      
+
+      //console.log(data);
+      
       
       let deviceData: DeviceData;
       let newEvents: number;

@@ -220,9 +220,9 @@ export const insertDataOnDB = async ( event: DatabaseEventData ): Promise<number
 
     await db.run(sql, values, function(err: any) {
       if ( err ) {
-        saveYellowInLogFile( `Error al grabar el evento: serialNo ${ event.serialNo }` );
-        saveYellowInLogFile( `Error al grabar el evento: serialNo ${ values }` );
-        console.log(err);
+        //saveYellowInLogFile( `Error al grabar el evento: serialNo ${ event.serialNo }` );
+        //saveYellowInLogFile( `Error al grabar el evento: serialNo ${ values }` );
+        //console.log(err);
         
         reject( err )
       } else {

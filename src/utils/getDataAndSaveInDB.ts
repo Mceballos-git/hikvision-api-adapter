@@ -30,14 +30,22 @@ export const getDataAndSaveInDB = async() => {
 
     // Realizo la llamada al dispositivo 
     // Buscando eventos con ID mas alto que el ultimo de la DB
-    const deviceData: DeviceData | undefined = await getDataFromDevice({
-      searchResultPosition: 0,
-      maxResults: 30,
-      // startTime: '2023-01-01T00:00:00-03:00',
-      // endTime: '2025-09-25T17:07:10-03:00'
-      beginSerialNo: lastEventFromDB.serialNo + 1,
-      endSerialNo: lastEventFromDB.serialNo + 150000,
-    });
+
+    
+
+
+    // {
+    //   searchResultPosition: 0,
+    //   maxResults: 30,
+    //   // startTime: '2023-01-01T00:00:00-03:00',
+    //   beginSerialNo: lastEventFromDB.serialNo + 1,
+    //   endSerialNo: lastEventFromDB.serialNo + 150000,
+    // }
+
+    const deviceData: DeviceData | undefined = await getDataFromDevice();
+
+    //console.log('device data', deviceData);
+    
 
 
     if ( deviceData?.AcsEvent?.totalMatches ) { 
@@ -57,7 +65,7 @@ export const getDataAndSaveInDB = async() => {
           cardReaderNo: event.cardReaderNo,
           doorNo: event.doorNo,
           employeeNoString: event.employeeNoString,
-          type: event.type,
+          type: event.type ?? 1,
           serialNo: event.serialNo,
           userType: event.userType,
           currentVerifyMode: event.currentVerifyMode,
@@ -65,14 +73,14 @@ export const getDataAndSaveInDB = async() => {
           numero_empresa:  parseInt(NUMERO_EMPRESA!),
           numero_sucursal: parseInt(NUMERO_SUCURSAL!),
           enviado: false,
-          pictureURL: event.pictureURL,
+          pictureURL: event.pictureURL ?? '',
           // pictureBuffer: pictureBuffer!
         }
 
         try {
           await insertDataOnDB(newEvent);
         } catch (error) {
-          console.log( error );
+          //console.log( error );
           saveYellowInLogFile(`Error al insertar registro serialNo:${event.serialNo} en DB`)            
         }
 
