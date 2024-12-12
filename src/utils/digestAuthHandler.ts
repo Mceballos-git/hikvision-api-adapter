@@ -24,9 +24,12 @@ const password = DEVICE_1_ADMIN_PASSWORD;
 // }
 
 
-export const getDataFromDevice = async (): Promise<DeviceData | undefined> => {
 
-  
+
+
+export const getDataFromDevice = async (fechaDesde: string | undefined): Promise<DeviceData | undefined> => {
+
+  console.log('fechaDesdeDevice', fechaDesde);
   let customHeaders = '';
   // Paso 1: Realiza una solicitud GET para obtener los parámetros de autenticación digest
   try {
@@ -93,20 +96,28 @@ export const getDataFromDevice = async (): Promise<DeviceData | undefined> => {
     const anio_hoy = String(fecha_hoy.getFullYear());
     const fecha_hoy_db = `${anio_hoy}-${mes_hoy}-${dia_hoy}T23:59:58-03:00`;
 
+    if (fechaDesde === undefined || fechaDesde === ''){
+      fechaDesde = fecha_ant_db;
+    }
+
+    console.log('fecha_ant_db', fecha_ant_db);
+    console.log('fecha desde consultar', fechaDesde);
+    
+
 
 
     let filtros = JSON.stringify({
       "AcsEventCond": {
         "major": 5,
-        "maxResults": 30,
+        "maxResults": 30, //30 es el maximo de registros a traer
         //"minor": 75, FaceID
         //"minor": 38, Huella
         "minor": MINOR,
         "searchID": "1",
         "searchResultPosition": 0,
-        "startTime": fecha_ant_db,
-          "endTime": fecha_hoy_db,
-          "timeReverseOrder": true,
+        "startTime": fechaDesde,
+        "endTime": fecha_hoy_db,
+        //"timeReverseOrder": true,
         //"startTime": '2024-12-10T01:24:00-03:00',
         //"endTime": '2024-12-12T00:23:52-03:00',
         // "timeReverseOrder": true,;

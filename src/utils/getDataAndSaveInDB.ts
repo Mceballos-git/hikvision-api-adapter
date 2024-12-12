@@ -12,7 +12,9 @@ const sharp = require('sharp');
 
 const url      = DEVICE_1_URL;
 
-export const getDataAndSaveInDB = async() => {
+export const getDataAndSaveInDB = async(fechaDesde: string | undefined): Promise<string> => {
+
+  let fechaDesdeRetorno: string = '';
 
   try {
     let eventDataArray: DeviceEventData[];
@@ -42,7 +44,8 @@ export const getDataAndSaveInDB = async() => {
     //   endSerialNo: lastEventFromDB.serialNo + 150000,
     // }
 
-    const deviceData: DeviceData | undefined = await getDataFromDevice();
+    
+    const deviceData: DeviceData | undefined = await getDataFromDevice(fechaDesde);
 
     //console.log('device data', deviceData);
     
@@ -76,6 +79,7 @@ export const getDataAndSaveInDB = async() => {
           pictureURL: event.pictureURL ?? '',
           // pictureBuffer: pictureBuffer!
         }
+        fechaDesdeRetorno = event.time;
 
         try {
           await insertDataOnDB(newEvent);
@@ -107,4 +111,6 @@ export const getDataAndSaveInDB = async() => {
   } catch( error ) {
     saveYellowInLogFile( `Error de primer metodo: ` + error );
   };
+
+  return fechaDesdeRetorno;
 }
